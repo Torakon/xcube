@@ -12,10 +12,12 @@ struct GameKey {
 
 class TestGame : public AbstractGame {
 	private:
-		Rect box;
-		Rect light;
+		Rect player;
+		Rect npc;
+		//Rect light; --Required constructor if left in
 
 		Vector2i velocity;
+		Vector2i npcVel;
 
 		MazeGenerator * gen;
 

@@ -1,0 +1,11 @@
+﻿  TestGame.cpp
+d:\github\repo\xcube\src\engine\gamemath.h(42): warning C4244: '+=': conversion from 'const float' to 'int', possible loss of data
+d:\github\repo\xcube\src\engine\gamemath.h(43): warning C4244: '+=': conversion from 'const float' to 'int', possible loss of data
+d:\github\repo\xcube\src\engine\gamemath.h(48): warning C4244: '-=': conversion from 'const float' to 'int', possible loss of data
+d:\github\repo\xcube\src\engine\gamemath.h(49): warning C4244: '-=': conversion from 'const float' to 'int', possible loss of data
+d:\github\repo\xcube\src\engine\gamemath.h(96): warning C4838: conversion from 'const float' to 'int' requires a narrowing conversion
+d:\github\repo\xcube\src\engine\gamemath.h(96): warning C4244: 'initializing': conversion from 'const float' to 'int', possible loss of data
+d:\github\repo\xcube\src\engine\gamemath.h(114): warning C4838: conversion from 'float' to 'int' requires a narrowing conversion
+d:\github\repo\xcube\src\engine\gamemath.h(114): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+d:\github\repo\xcube\src\test\testgame.cpp(152): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
+  MyGame.vcxproj -> D:\Github\Repo\xcube\build\Debug\MyGame.exe

@@ -1,6 +1,6 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), box(5, 5, 30, 30), light(0, 0, 150, 150) {
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), player(1, 1, 29, 29), npc(1,271,29,29) {
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
@@ -8,7 +8,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(fals
 	gen = new MazeGenerator(10, 10);
 	gen->generateMaze(0, 0);
 
-	int dist = 40;
+	int dist = 30;
 
 	for (int i = 0; i < gen->y; ++i) {
 
@@ -71,24 +71,52 @@ void TestGame::handleKeyEvents() {
 }
 
 void TestGame::update() {
-	box.x += velocity.x;
+	player.x += velocity.x;
+	if (player.x > npc.x) { //would need to go in ai sub
+		npcVel.x = 1;
+	}
+	else if (player.x < npc.x) {
+		npcVel.x = -1;
+	}
+	npc.x += npcVel.x; //
+	
 	for (auto line : lines) {
-		if (box.intersects(*line)) {
-			box.x -= velocity.x;
+		if (player.intersects(*line)||player.intersects(npc)) {
+			player.x -= velocity.x;
+			break;
+		}
+	}
+	for (auto line : lines) {
+		if (npc.intersects(*line)||npc.intersects(player)) {
+			npc.x -= npcVel.x;
 			break;
 		}
 	}
 
-	box.y += velocity.y;
+	player.y += velocity.y;
+	if (player.y > npc.y) { //would need to go in ai sub
+		npcVel.y = 1;
+	}
+	else if (player.y < npc.y){
+		npcVel.y = -1;
+	}
+	npc.y += npcVel.y; //
+
 	for (auto line : lines) {
-		if (box.intersects(*line)) {
-			box.y -= velocity.y;
+		if (player.intersects(*line)||player.intersects(npc)) {
+			player.y -= velocity.y;
+			break;
+		}
+	}
+	for (auto line : lines) {
+		if (npc.intersects(*line)||npc.intersects(player)) {
+			npc.y -= npcVel.y;
 			break;
 		}
 	}
 
 	for (auto key : points) {
-		if (key->alive && box.contains(key->pos)) {
+		if (key->alive && player.contains(key->pos)) {
 			score += 200;
 			key->alive = false;
 			keys--;
@@ -96,9 +124,6 @@ void TestGame::update() {
 	}
 
 	velocity = Vector2i(0, 0);
-
-	light.x = box.x - 60;
-	light.y = box.y - 60;
 
 	if (keys == 0) {
 		gameWon = true;
@@ -108,16 +133,16 @@ void TestGame::update() {
 void TestGame::render() {
 	gfx->setDrawColor(SDL_COLOR_WHITE);
 	for (auto line : lines)
-		if (light.intersects(*line))
-			gfx->drawLine(line->start, line->end);
+		gfx->drawLine(line->start, line->end);
 	
 
 	gfx->setDrawColor(SDL_COLOR_RED);
-	gfx->drawRect(box);
+	gfx->drawRect(npc);
+	gfx->drawRect(player);
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : points)
-		if (key->alive && light.contains(key->pos))
+		if (key->alive)
 			gfx->drawPoint(key->pos);
 }
 
