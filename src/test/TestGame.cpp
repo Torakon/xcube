@@ -1,14 +1,26 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), player(1, 1, 29, 29), npc(1,271,29,29) {
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), player(1, 1, 29, 29), npc(1,271,29,29), width(500), height(500), tileSize(10) {
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
 
-	gen = new MazeGenerator(10, 10);
+	gen = new MazeGenerator(width/tileSize, height/tileSize);
 	gen->generateMaze(0, 0);
+	for (int i = 0; i < height / tileSize; i++) {
+		for (int j = 0; j < width / tileSize; j++) {
+			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) {
+				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize,j*tileSize,tileSize,tileSize)));
+			}
+		}
+	}
+	//world bounds
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width+tileSize, tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height+tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width+tileSize, tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height+tileSize)));
 
-	int dist = 30;
+	int dist = tileSize;
 
 	for (int i = 0; i < gen->y; ++i) {
 
@@ -19,11 +31,11 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(fals
 			int x = j * dist;
 
 			if ((gen->maze[j][i] & 1) == 0) {
-				lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x+dist, y)));
+				//lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x+dist, y)));
 			}
 
 			if ((gen->maze[j][i] & 8) == 0) {
-				lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x, y+dist)));
+				//lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x, y+dist)));
 			}
 
 			if (keys > 0 && getRandom(0, 100) <= 5) {
@@ -35,15 +47,17 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(fals
 			}
 		}
 
-		lines.push_back(std::make_shared<Line2i>(Point2(gen->x*dist, y), Point2(gen->x*dist, y + dist)));
+		//lines.push_back(std::make_shared<Line2i>(Point2(gen->x*dist, y), Point2(gen->x*dist, y + dist)));
 	}
 
 	for (int j = 0; j < gen->x; j++) {
 		int x = j * dist;
-		lines.push_back(std::make_shared<Line2i>(Point2(x, gen->y * dist), Point2(x + dist, gen->y * dist)));
+		//lines.push_back(std::make_shared<Line2i>(Point2(x, gen->y * dist), Point2(x + dist, gen->y * dist)));
 	}
 
 	keys = 5;
+	
+	theAI = new AIController(1,300,300,lines);
 }
 
 TestGame::~TestGame() {
@@ -80,14 +94,14 @@ void TestGame::update() {
 	}
 	npc.x += npcVel.x; //
 	
-	for (auto line : lines) {
-		if (player.intersects(*line)||player.intersects(npc)) {
+	for (auto block : wall) {
+		if (player.intersects(*block)||player.intersects(npc)) {
 			player.x -= velocity.x;
 			break;
 		}
 	}
-	for (auto line : lines) {
-		if (npc.intersects(*line)||npc.intersects(player)) {
+	for (auto block : wall) {
+		if (npc.intersects(*block)||npc.intersects(player)) {
 			npc.x -= npcVel.x;
 			break;
 		}
@@ -102,14 +116,14 @@ void TestGame::update() {
 	}
 	npc.y += npcVel.y; //
 
-	for (auto line : lines) {
-		if (player.intersects(*line)||player.intersects(npc)) {
+	for (auto block : wall) {
+		if (player.intersects(*block)||player.intersects(npc)) {
 			player.y -= velocity.y;
 			break;
 		}
 	}
-	for (auto line : lines) {
-		if (npc.intersects(*line)||npc.intersects(player)) {
+	for (auto block : wall) {
+		if (npc.intersects(*block)||npc.intersects(player)) {
 			npc.y -= npcVel.y;
 			break;
 		}
@@ -132,9 +146,8 @@ void TestGame::update() {
 
 void TestGame::render() {
 	gfx->setDrawColor(SDL_COLOR_WHITE);
-	for (auto line : lines)
-		gfx->drawLine(line->start, line->end);
-	
+	for (auto block : wall)
+		gfx->drawRect(block->x, block->y, block->w, block->h);
 
 	gfx->setDrawColor(SDL_COLOR_RED);
 	gfx->drawRect(npc);
