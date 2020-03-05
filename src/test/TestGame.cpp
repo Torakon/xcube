@@ -1,6 +1,6 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 	SDL_Texture * texture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
 	gfx->useFont(font);
@@ -31,35 +31,29 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(fals
 
 			int x = j * dist;
 
-			if ((gen->maze[j][i] & 1) == 0) {
-				//lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x+dist, y)));
-			}
-
-			if ((gen->maze[j][i] & 8) == 0) {
-				//lines.push_back(std::make_shared<Line2i>(Point2(x, y), Point2(x, y+dist)));
-			}
-
-			if (keys > 0 && getRandom(0, 100) <= 5) {
-				std::shared_ptr<GameKey> k = std::make_shared<GameKey>();
-				k->alive = true;
-				k->pos = Point2(j*dist + dist/2, i*dist + dist/2);
-				points.push_back(k);
-				keys--;
+			if (keys > 0 && getRandom(0, 200) <= 1) {
+				bool check = false;
+				for (auto block : wall) {
+					if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
+						check = true;
+						break;
+					}
+				}
+				if (!check) {
+					std::shared_ptr<GameKey> k = std::make_shared<GameKey>();
+					k->alive = true;
+					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
+					points.push_back(k);
+					keys--;
+				}
 			}
 		}
-
-		//lines.push_back(std::make_shared<Line2i>(Point2(gen->x*dist, y), Point2(gen->x*dist, y + dist)));
 	}
 
-	for (int j = 0; j < gen->x; j++) {
-		int x = j * dist;
-		//lines.push_back(std::make_shared<Line2i>(Point2(x, gen->y * dist), Point2(x + dist, gen->y * dist)));
-	}
-
-	keys = 5;
+	keys = 10;
 	npc = new Entity(1, 271, tileSize-1, tileSize-1, true, texture);
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
-	theAI = new AIController(1,300,300,lines);
+	theAI = new AIController(15,width,height,wall);
 }
 
 TestGame::~TestGame() {
@@ -140,7 +134,14 @@ void TestGame::update() {
 	}
 
 	velocity = Vector2i(0, 0);
-
+	/*int xcoord = (npc->x) / tileSize;  //CAN NOW SEE WHERE ON MAP AI IS
+	int ycoord = (npc->y) / tileSize;
+	if (!theAI->walkable[xcoord][ycoord]) {
+		std::cout << "Shouldnt be here" << std::endl;
+	}
+	else {
+		std::cout << theAI->walkable[xcoord][ycoord] << std::endl;
+	}*/
 	if (keys == 0) {
 		gameWon = true;
 	}

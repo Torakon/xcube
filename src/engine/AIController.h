@@ -9,9 +9,9 @@ class AIController {
 		int tileSize;
 		int mapX;
 		int mapY;
-		std::vector<std::vector<bool >> walkable;
 	public:
+		std::vector<std::vector<bool >> walkable;
 		AIController(int, int, int);
-		AIController(int, int, int, std::vector<std::shared_ptr<Line2i>>);
+		AIController(int, int, int, std::vector<std::shared_ptr<Rect>>);
 };
 #endif

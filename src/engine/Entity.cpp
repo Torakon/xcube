@@ -1,8 +1,8 @@
 #include "Entity.h"
 
-Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * image) : x(xPos), y(yPos), h(height), w(width), bBox(bounding), collider(0,0,0,0) {
+Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * image) : x(xPos), y(yPos), h(height), w(width), bBox(bounding), collider(0, 0, 0, 0) {
 	texture = image;
-	display = new SDL_Rect{ xPos, yPos, h, w };
+	display = new SDL_Rect{ x, y, h, w };
 
 	if (bBox) {
 		addBounding();
@@ -27,3 +27,4 @@ void Entity::moveY(int yDif) {
 	display->y = y;
 	collider.y = y;
 }
+
