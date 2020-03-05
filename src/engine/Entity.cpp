@@ -1,8 +1,8 @@
 #include "Entity.h"
 
 Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * image) : x(xPos), y(yPos), h(height), w(width), bBox(bounding), collider(0, 0, 0, 0) {
-	texture = image;
-	display = new SDL_Rect{ x, y, h, w };
+	texture = image; //can we set bounding box based on image size?
+	display = new SDL_Rect{ x, y, h, w }; 
 
 	if (bBox) {
 		addBounding();
