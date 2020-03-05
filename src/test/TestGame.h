@@ -12,8 +12,8 @@ struct GameKey {
 
 class TestGame : public AbstractGame {
 	private:
-		Rect player;
-		Rect npc;
+		Entity * player;
+		Entity * npc;
 		
 		int width;
 		int height;

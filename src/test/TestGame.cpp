@@ -1,7 +1,8 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), player(1, 1, 29, 29), npc(1,271,29,29), width(500), height(500), tileSize(10) {
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
+	SDL_Texture * texture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
 
@@ -56,7 +57,8 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(5), gameWon(fals
 	}
 
 	keys = 5;
-	
+	npc = new Entity(1, 271, tileSize-1, tileSize-1, true, texture);
+	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
 	theAI = new AIController(1,300,300,lines);
 }
 
@@ -85,52 +87,52 @@ void TestGame::handleKeyEvents() {
 }
 
 void TestGame::update() {
-	player.x += velocity.x;
-	if (player.x > npc.x) { //would need to go in ai sub
+	player->moveX(velocity.x);
+	if (player->collider.x > npc->collider.x) { //would need to go in ai sub?
 		npcVel.x = 1;
 	}
-	else if (player.x < npc.x) {
+	else if (player->collider.x < npc->collider.x) {
 		npcVel.x = -1;
 	}
-	npc.x += npcVel.x; //
+	npc->moveX(npcVel.x); //
 	
 	for (auto block : wall) {
-		if (player.intersects(*block)||player.intersects(npc)) {
-			player.x -= velocity.x;
+		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
+			player->moveX(-velocity.x);
 			break;
 		}
 	}
 	for (auto block : wall) {
-		if (npc.intersects(*block)||npc.intersects(player)) {
-			npc.x -= npcVel.x;
+		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
+			npc->moveX(-npcVel.x);
 			break;
 		}
 	}
 
-	player.y += velocity.y;
-	if (player.y > npc.y) { //would need to go in ai sub
+	player->moveY(velocity.y);
+	if (player->collider.y > npc->collider.y) { //would need to go in ai sub?
 		npcVel.y = 1;
 	}
-	else if (player.y < npc.y){
+	else if (player->collider.y < npc->collider.y){
 		npcVel.y = -1;
 	}
-	npc.y += npcVel.y; //
+	npc->moveY(npcVel.y); //
 
 	for (auto block : wall) {
-		if (player.intersects(*block)||player.intersects(npc)) {
-			player.y -= velocity.y;
+		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
+			player->moveY(-velocity.y);
 			break;
 		}
 	}
 	for (auto block : wall) {
-		if (npc.intersects(*block)||npc.intersects(player)) {
-			npc.y -= npcVel.y;
+		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
+			npc->moveY(-npcVel.y);
 			break;
 		}
 	}
 
 	for (auto key : points) {
-		if (key->alive && player.contains(key->pos)) {
+		if (key->alive && player->collider.contains(key->pos)) {
 			score += 200;
 			key->alive = false;
 			keys--;
@@ -145,13 +147,15 @@ void TestGame::update() {
 }
 
 void TestGame::render() {
+	gfx->drawTexture(npc->texture, NULL, npc->display);
+	gfx->drawTexture(npc->texture, NULL, player->display);
 	gfx->setDrawColor(SDL_COLOR_WHITE);
 	for (auto block : wall)
 		gfx->drawRect(block->x, block->y, block->w, block->h);
 
-	gfx->setDrawColor(SDL_COLOR_RED);
-	gfx->drawRect(npc);
-	gfx->drawRect(player);
+	gfx->setDrawColor(SDL_COLOR_RED); //temp to show boundingBox
+	gfx->drawRect(npc->collider); //temp to show boundingBox
+	gfx->drawRect(player->collider); //temp to show boundingBox
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : points)

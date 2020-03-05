@@ -12,6 +12,7 @@
 #include "ResourceManager.h"
 #include "Timer.h"
 #include "AIController.h"
+#include "Entity.h"
 
 const int _ENGINE_VERSION_MAJOR = 0;
 const int _ENGINE_VERSION_MINOR = 1;
