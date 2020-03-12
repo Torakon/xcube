@@ -23,6 +23,7 @@ class XCube2Engine {
 		std::shared_ptr<GraphicsEngine> gfxInstance;
 		std::shared_ptr<AudioEngine> audioInstance;
 		std::shared_ptr<EventEngine> eventInstance;
+		std::shared_ptr<AIController> aiInstance;
 		std::shared_ptr<PhysicsEngine> physicsInstance;
 
 		XCube2Engine();
@@ -48,6 +49,7 @@ class XCube2Engine {
 		std::shared_ptr<GraphicsEngine> getGraphicsEngine() { return gfxInstance; }
 		std::shared_ptr<AudioEngine> getAudioEngine() { return audioInstance; }
 		std::shared_ptr<EventEngine> getEventEngine() { return eventInstance; }
+		std::shared_ptr<AIController> getAICont() { return aiInstance;  }
 		std::shared_ptr<PhysicsEngine> getPhysicsEngine() { return physicsInstance; }
 };
 

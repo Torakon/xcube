@@ -28,3 +28,7 @@ void Entity::moveY(int yDif) {
 	collider.y = y;
 }
 
+//int Entity::getX() {
+	//return x;
+//}
+

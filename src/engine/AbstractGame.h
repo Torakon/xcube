@@ -16,6 +16,7 @@ class AbstractGame {
 		std::shared_ptr<GraphicsEngine> gfx;
 		std::shared_ptr<AudioEngine> sfx;
 		std::shared_ptr<EventEngine> eventSystem;
+		std::shared_ptr<AIController> ai;
 		std::shared_ptr<PhysicsEngine> physics;
 
 		/* Main loop control */

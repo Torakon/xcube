@@ -62,7 +62,10 @@ XCube2Engine::XCube2Engine() {
 	debug("EventEngine() successful");
 #endif
 
+	aiInstance = std::shared_ptr<AIController>(new AIController());
+
 	physicsInstance = std::shared_ptr<PhysicsEngine>(new PhysicsEngine());
+
 }
 
 XCube2Engine::~XCube2Engine() {
