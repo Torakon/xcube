@@ -1,3 +1,0 @@
-D:/Github/Repo/xcube/build/CMakeFiles/MyGame.dir
-D:/Github/Repo/xcube/build/CMakeFiles/ALL_BUILD.dir
-D:/Github/Repo/xcube/build/CMakeFiles/ZERO_CHECK.dir
