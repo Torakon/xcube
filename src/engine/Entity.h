@@ -9,16 +9,18 @@ class Entity {
 		void addBounding();
 		int h;
 		int w;
+		int sight = 0;
 	public:
+		int x;
+		int y;
 		Rect collider;
 		SDL_Texture * texture;
-		SDL_Rect tester;
+		SDL_Rect * display;
 		Entity(int, int, int, int, bool, SDL_Texture *);
 		void moveX(int);
 		void moveY(int);
-		SDL_Rect * display;
-		int x;
-		int y;
+		void setSight(int);
+		int getSight();
 };
 
 #endif

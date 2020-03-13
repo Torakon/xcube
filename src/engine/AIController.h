@@ -4,6 +4,7 @@
 #include "GraphicsEngine.h"
 #include "Entity.h"
 #include "Node.h"
+#include "AStar.h"
 #include <vector>
 #include <list>
 
@@ -17,7 +18,8 @@ class AIController {
 		std::vector<std::vector<bool >> walkable;
 		AIController();
 		void addMap(int, int, int, std::vector<std::shared_ptr<Rect>>);
-		void getPath(Entity *, Entity *);
-		void getPath(Entity, Point2);
+		void getPath(Entity*, Entity*);
+		void patrol(Entity*, Point2);
+		void chase(Entity*, Entity*);
 };
 #endif

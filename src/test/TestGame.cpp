@@ -51,7 +51,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	}
 
 	keys = 10;
-	npc = new Entity(271, 271, tileSize-1, tileSize-1, true, texture);
+	npc = new Entity(1, 271, tileSize-1, tileSize-1, true, texture);
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
 	ai->addMap(tileSize, width, height, wall);
 	ai->getPath(npc, player);
