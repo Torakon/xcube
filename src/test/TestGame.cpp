@@ -11,7 +11,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	for (int i = 0; i < height / tileSize; i++) {
 		for (int j = 0; j < width / tileSize; j++) {
 			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) {
-				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize,j*tileSize,tileSize,tileSize)));
+				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
 			}
 		}
 	}
@@ -51,10 +51,10 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	}
 
 	keys = 10;
-	npc = new Entity(1, 271, tileSize-1, tileSize-1, true, texture);
+	npc = new Entity(271, 271, tileSize-1, tileSize-1, true, texture);
+	npc->setSight(10);
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
 	ai->addMap(tileSize, width, height, wall);
-	ai->getPath(npc, player);
 }
 
 TestGame::~TestGame() {
@@ -83,13 +83,6 @@ void TestGame::handleKeyEvents() {
 
 void TestGame::update() {
 	player->moveX(velocity.x);
-	if (player->collider.x > npc->collider.x) { //would need to go in ai sub?
-		npcVel.x = 1;
-	}
-	else if (player->collider.x < npc->collider.x) {
-		npcVel.x = -1;
-	}
-	npc->moveX(npcVel.x); //
 	
 	for (auto block : wall) {
 		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
@@ -97,7 +90,7 @@ void TestGame::update() {
 			break;
 		}
 	}
-	for (auto block : wall) {
+	for (auto block : wall) { //currently ai just merges with player
 		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
 			npc->moveX(-npcVel.x);
 			break;
@@ -105,13 +98,6 @@ void TestGame::update() {
 	}
 
 	player->moveY(velocity.y);
-	if (player->collider.y > npc->collider.y) { //would need to go in ai sub?
-		npcVel.y = 1;
-	}
-	else if (player->collider.y < npc->collider.y){
-		npcVel.y = -1;
-	}
-	npc->moveY(npcVel.y); //
 
 	for (auto block : wall) {
 		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
@@ -119,7 +105,7 @@ void TestGame::update() {
 			break;
 		}
 	}
-	for (auto block : wall) {
+	for (auto block : wall) { //currently ai just merges with player
 		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
 			npc->moveY(-npcVel.y);
 			break;
@@ -135,6 +121,11 @@ void TestGame::update() {
 	}
 
 	velocity = Vector2i(0, 0);
+	if (npc->getPathProgress() < 1) {
+		npc->moveAlongPath();
+	} else {
+		ai->givePath(npc, player);
+	}
 	/*int xcoord = (npc->x) / tileSize;  //CAN NOW SEE WHERE ON MAP AI IS
 	int ycoord = (npc->y) / tileSize;
 	if (!theAI->walkable[xcoord][ycoord]) {
@@ -158,6 +149,7 @@ void TestGame::render() {
 	gfx->setDrawColor(SDL_COLOR_RED); //temp to show boundingBox
 	gfx->drawRect(npc->collider); //temp to show boundingBox
 	gfx->drawRect(player->collider); //temp to show boundingBox
+	//gfx->drawRect(Rect((npc->x) - 10 * tileSize, (npc->y) - 10 *tileSize, 20 * tileSize, 20 * tileSize));
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : points)
