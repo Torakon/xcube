@@ -16,6 +16,8 @@ class Node {
 		void addParent(Node*);
 		std::string getID();
 		Node* backtrack();
+		char direction;
+		int cellSize;
 		int tilX;
 		int tilY;
 		int disG;
