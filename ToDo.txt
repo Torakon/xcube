@@ -1,0 +1,4 @@
+1) Sort out collisions between player and AI so that they do not merge together and restrict movement.
+2) Refine line of sight so that it takes walls into account.
+3) Tidy up code (low priority at the moment).
+4) Look into further optimising the search algorithm, at the moment there can be a noticeable stutter in frames when it goes into effect.
