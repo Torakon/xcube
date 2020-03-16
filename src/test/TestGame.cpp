@@ -40,8 +40,8 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 					}
 				}
 				if (!check) {
-					std::shared_ptr<GameKey> k = std::make_shared<GameKey>();
-					k->alive = true;
+					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are ciurrently spawning blocked off on all sides
+					k->alive = true;											//maybe move demo goal away from 'keys' concept
 					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
 					points.push_back(k);
 					keys--;
@@ -51,8 +51,9 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	}
 
 	keys = points.size();
-	npc = new Entity(271, 271, tileSize-1, tileSize-1, true, texture);
+	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, texture);
 	npc->setSight(10);
+	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD)
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
 	ai->addMap(tileSize, width, height, wall);
 }

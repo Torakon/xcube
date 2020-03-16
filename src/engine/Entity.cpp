@@ -36,6 +36,14 @@ int Entity::getSight() {
 	return sight;
 }
 
+void Entity::patrol(bool yesNo) {
+	randomPatrolB = yesNo; //possibly promote to Component type and just call one method of get behaviour that returns a list of Components for access
+}
+
+bool Entity::getPatrol() {
+	return randomPatrolB;
+}
+
 void Entity::moveAlongPath() {
 	if (nodesPassed < pathCheck.size()) {
 		int destinationX = pathCheck[nodesPassed].x;
@@ -75,7 +83,7 @@ float Entity::getPathProgress() {
 		return 1;
 	}
 	nodesPassed = 0;
-	return 0;
+	return (nodesPassed/pathCheck.size());
 }
 
 

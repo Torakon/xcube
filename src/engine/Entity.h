@@ -7,13 +7,17 @@
 class Entity {
 	private:
 		bool bBox;
-		void addBounding();
+		bool randomPatrolB = false;
 		int h;
 		int w;
 		int sight = 1;
 		int nodesPassed = 0;
 		int speed = 1;
+
 		std::vector<Point2> pathCheck;
+
+		void addBounding();
+	
 	public:
 		int x;
 		int y;
@@ -27,6 +31,8 @@ class Entity {
 		void moveY(int);
 		void setSight(int);
 		int getSight();
+		void patrol(bool);
+		bool getPatrol();
 		void moveAlongPath();
 		void aiMovePath(std::vector<Point2>);
 		float getPathProgress();

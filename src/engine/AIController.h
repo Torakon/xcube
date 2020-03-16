@@ -13,8 +13,11 @@ class AIController {
 		int tileSize;
 		int mapX;
 		int mapY;
+		bool firstPass = true;
+
 		std::vector<Point2> path;
 		AStar search;
+		Point2 patrolCent;
 	public:
 		std::vector<std::vector<Node* >> walkable;
 		AIController();

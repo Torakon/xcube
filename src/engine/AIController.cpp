@@ -76,20 +76,34 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 	//if destination entity is in sight then chase otherwise, 'patrol'
 	if (sighted) {
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ destX, destY }, walkable);
+		firstPass = true;
 	}
-	else {
-		int randomX = std::rand() % sight - (sight / 2); 
-		int randomY = std::rand() % sight - (sight / 2);
-		randomX = randomX + seekerX;
-		randomY = randomY + seekerY;
-		if (randomX < 0) {
+	else if (seeker->getPatrol()) {
+		//if (firstPass == true) { patrolCent = { seekerX, seekerY }; }
+		//std::cout << firstPass << std::endl;
+		firstPass = false;
+		int randomX = std::rand() % (sight + 1) - (sight / 2); 
+		int randomY = std::rand() % (sight + 1) - (sight / 2);
+		if (randomX + seekerX < 0) {
 			randomX *= -1;
 		}
-		if (randomY < 0) {
+		if (randomY + seekerY < 0) {
+			randomY *= -1;
+		}
+		if (randomX + seekerX > mapX - 1) {
+			randomX *= -1;
+		}
+		if (randomY + seekerY > mapY - 1) {
 			randomY *= -1;
 		}
 
-		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, 10);
+		randomX += seekerX;
+		randomY += seekerY;
+
+		//std::cout << "Current " << seekerX << " " << seekerY << std::endl; //DEBUG
+		//std::cout << "Destination " << randomX << " " << randomY << std::endl; //DEBUG
+
+		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, sight); //LOOK AT THIS: why does the AI drift to the lower right corner?? is it the depth thats causing this
 	}
 	seeker->aiMovePath(path);
 	/*for (Point2 x : path) { //DEBUG: Print path
