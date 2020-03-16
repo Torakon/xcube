@@ -77,6 +77,7 @@ XCube2Engine::~XCube2Engine() {
 
 	eventInstance.reset();
 	gfxInstance.reset();
+	aiInstance.reset();
 
 #ifdef __DEBUG
 	debug("XCube2Engine::~XCube2Engine() finished");

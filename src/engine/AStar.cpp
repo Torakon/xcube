@@ -27,6 +27,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
+
 		//check if cell exists
 		if (compare->tilX < mapData[0].size() - 1) {
 			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));
@@ -78,7 +79,6 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			open.clear();
 		}
 	}
-	//path.push_back(compare);
 	bckNode = compare;
 
 	while (bckNode->getID() != origin.getID()) {
@@ -107,6 +107,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
+
 		//check if cell exists
 		if (compare->tilX < mapData[0].size() - 1) {
 			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));

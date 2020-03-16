@@ -5,9 +5,9 @@ AIController::AIController() : tileSize(0), mapX(0), mapY(0) {
 }
 
 AIController::~AIController() {
-	while (!walkable[0].empty()) {
-		for each (Node* x in walkable[0]) {
-			delete x;
+	while (!walkable.empty()) {
+		for each(Node* x in walkable[0]) {
+			delete x; //Read access violation, look into avoiding raw pointers
 		}
 	}
 	walkable.clear();
@@ -25,6 +25,14 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 	tileSize = tile;
 	mapX = xPixel / tile;
 	mapY = yPixel / tile;
+
+	//On occasion of n+1 maps, Deletes old Node data
+	while (!walkable.empty()) {
+		for each (Node* x in walkable[0]) {
+			delete x;
+		}
+	}
+	walkable.clear();
 
 	//Following code creates a gameworld based on pixel size and tile size fed to it. 2d Vector data structure used for visualisation
 	walkable.resize(mapY);

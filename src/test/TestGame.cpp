@@ -50,7 +50,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 		}
 	}
 
-	keys = 10;
+	keys = points.size();
 	npc = new Entity(271, 271, tileSize-1, tileSize-1, true, texture);
 	npc->setSight(10);
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
@@ -126,14 +126,6 @@ void TestGame::update() {
 	} else {
 		ai->givePath(npc, player);
 	}
-	/*int xcoord = (npc->x) / tileSize;  //CAN NOW SEE WHERE ON MAP AI IS
-	int ycoord = (npc->y) / tileSize;
-	if (!theAI->walkable[xcoord][ycoord]) {
-		std::cout << "Shouldnt be here" << std::endl;
-	}
-	else {
-		std::cout << theAI->walkable[xcoord][ycoord] << std::endl;
-	}*/
 	if (keys == 0) {
 		gameWon = true;
 	}
@@ -149,7 +141,6 @@ void TestGame::render() {
 	gfx->setDrawColor(SDL_COLOR_RED); //temp to show boundingBox
 	gfx->drawRect(npc->collider); //temp to show boundingBox
 	gfx->drawRect(player->collider); //temp to show boundingBox
-	//gfx->drawRect(Rect((npc->x) - 10 * tileSize, (npc->y) - 10 *tileSize, 20 * tileSize, 20 * tileSize));
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : points)
