@@ -36,6 +36,14 @@ int Entity::getSight() {
 	return sight;
 }
 
+void Entity::setSpeed(int x) {
+	speed = x;
+}
+
+int Entity::getSpeed() {
+	return speed;
+}
+
 void Entity::patrol(bool yesNo) {
 	randomPatrolB = yesNo; //possibly promote to Component type and just call one method of get behaviour that returns a list of Components for access
 }
@@ -48,6 +56,15 @@ void Entity::moveAlongPath() {
 	if (nodesPassed < pathCheck.size()) {
 		int destinationX = pathCheck[nodesPassed].x;
 		int destinationY = pathCheck[nodesPassed].y;
+
+		int xDif = ((w + 1)*destinationX) - x;
+		int yDif = ((w + 1)*destinationY) - y;
+		if (xDif < 0) xDif *= -1;
+		if (yDif < 0) yDif *= -1;
+		std::cout << xDif << " " << yDif << std::endl;
+		if (xDif < speed) moveX(xDif);
+		if (yDif < speed) moveY(yDif);
+
 		if ((w+1)*(destinationX) > x) {
 			moveX(speed);
 		}

@@ -76,9 +76,10 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 	//if destination entity is in sight then chase otherwise, 'patrol'
 	if (sighted) {
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ destX, destY }, walkable);
-		seeker->speed = 2;
+		seeker->setSpeed(2); //getChaseSpeed?
 	}
 	else if (seeker->getPatrol()) {
+		seeker->setSpeed(1); //getPatrolSpeed?
 		int randomX = std::rand() % (sight + 1) - (sight / 2); 
 		int randomY = std::rand() % (sight + 1) - (sight / 2);
 		if (randomX + seekerX < 0) {

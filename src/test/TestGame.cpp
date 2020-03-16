@@ -60,6 +60,8 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 
 TestGame::~TestGame() {
 	delete gen;
+	delete npc;
+	delete player;
 }
 
 void TestGame::handleKeyEvents() {

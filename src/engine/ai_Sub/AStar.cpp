@@ -95,13 +95,13 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	bckNode = compare;
 
 	while (bckNode->getID() != origin.getID()) {
-		//std::cout << goal.getID() << std::endl;
-		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl;
+		//std::cout << goal.getID() << std::endl; //DEBUG
+		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl; //DEBUG
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
 	close.clear();
-	//std::cout << std::endl;
+	//std::cout << std::endl; //DEBUG
 
 	return path;
 }
@@ -193,13 +193,13 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	bckNode = compare;
 
 	while (bckNode->getID() != origin.getID()) {
-		//std::cout << goal.getID() << std::endl;
-		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl;
+		//std::cout << goal.getID() << std::endl; //DEBUG
+		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl; //DEBUG
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
 	close.clear();
-	//std::cout << std::endl;
+	//std::cout << std::endl; //DEBUG
 
 	return path;
 }

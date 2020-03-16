@@ -27,12 +27,19 @@ class Entity {
 		SDL_Rect * display;
 
 		Entity(int, int, int, int, bool, SDL_Texture *);
+
 		void moveX(int);
 		void moveY(int);
+
 		void setSight(int);
 		int getSight();
+
+		void setSpeed(int);
+		int getSpeed();
+
 		void patrol(bool);
 		bool getPatrol();
+
 		void moveAlongPath();
 		void aiMovePath(std::vector<Point2>);
 		float getPathProgress();

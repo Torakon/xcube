@@ -1,7 +1,7 @@
 #ifndef __A_STAR_H__
 #define __A_STAR_H__
 
-#include "../engine/Entity.h"
+#include "../Entity.h"
 #include "Node.h"
 #include <vector>
 

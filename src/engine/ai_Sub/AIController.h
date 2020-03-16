@@ -1,8 +1,9 @@
 #ifndef __AI_CONTROLLER_H__
 #define __AI_CONTROLLER_H__
 
-#include "../engine/GraphicsEngine.h"
-#include "Entity.h"
+#include "../GraphicsEngine.h"
+#include "../Entity.h"
+#include "../EngineCommon.h"
 #include "Node.h"
 #include "AStar.h"
 #include <vector>
@@ -13,7 +14,6 @@ class AIController {
 		int tileSize;
 		int mapX;
 		int mapY;
-		bool firstPass = true;
 
 		std::vector<Point2> path;
 		AStar search;
