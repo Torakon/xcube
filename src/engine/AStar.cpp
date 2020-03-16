@@ -43,7 +43,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		if (compare->tilY < mapData.size() - 1) {
 			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY + 1) ^ 2);
 			if (dif < 0) dif *= -1;
-			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif); //was -1 in original?
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
 		}
 		if (compare->tilX > 0) {
@@ -103,9 +103,6 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	close.clear();
 	//std::cout << std::endl;
 
-	/*for (Point2 x : path) {
-		std::cout << x.x << " " << x.y << std::endl;
-	}*/
 	return path;
 }
 
@@ -144,7 +141,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		if (compare->tilY < mapData.size() - 1) {
 			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY + 1) ^ 2);
 			if (dif < 0) dif *= -1;
-			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif); //was -1 in original?
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
 		}
 		if (compare->tilX > 0) {
@@ -203,9 +200,6 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	}
 	close.clear();
 	//std::cout << std::endl;
-	
-	/*for (Point2 x : path) {
-		std::cout << x.x << " " << x.y << std::endl;
-	}*/
+
 	return path;
 }
