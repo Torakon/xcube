@@ -22,8 +22,9 @@ private:
 	int heu;
 public:
 	AStar();
-	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<bool >>);
-	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<bool >>, int);
+	~AStar();
+	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<Node* >>);
+	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<Node* >>, int);
 };
 
 #endif

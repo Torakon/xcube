@@ -4,6 +4,15 @@ AIController::AIController() : tileSize(0), mapX(0), mapY(0) {
 	
 }
 
+AIController::~AIController() {
+	while (!walkable[0].empty()) {
+		for each (Node* x in walkable[0]) {
+			delete x;
+		}
+	}
+	walkable.clear();
+} 
+
 void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::shared_ptr<Rect>> map) {
 	if ((xPixel%tile != 0) || (yPixel%tile != 0)) {
 		try {
@@ -22,14 +31,16 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 	bool wCheck = true;
 	for (int i = 0; i < mapX; i++) {
 		for (int j = 0; j < mapY; j++) {
+			Node* push = new Node(j, i, tileSize, tileSize);
 			wCheck = true;
 			for (auto block : map) {
-				if (Rect((j*tileSize), (i*tileSize), tileSize, tileSize).intersects(*block)) {
+				if (Rect(j * tileSize, i * tileSize, tileSize, tileSize).intersects(*block)) {
 					wCheck = false;
 					break;
 				}
 			}
-			walkable[i].push_back(wCheck);
+			push->setWalkable(wCheck);
+			walkable[i].push_back(push);
 		}
 	}	
 	//The below code to print a visualisation of the game world to console is edited from "Vlad from Moscow" - https://stackoverflow.com/questions/42249303/how-can-i-push-back-data-in-a-2d-vector-of-type-int 05/03/2020
@@ -41,21 +52,19 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 }
 
 void AIController::givePath(Entity* seeker, Entity* dest) {
-	Node * compare = nullptr;
 	int sight = seeker->getSight();
 	int seekerX = seeker->x / tileSize;
 	int seekerY = seeker->y / tileSize;
 	int destX = dest->x / tileSize;
 	int destY = dest->y / tileSize;
-	int xtemp = seekerX, ytemp = seekerY;
 
 	//basic 'line of sight' currently does not take walls into account
 	bool sighted = false, complete = false;
-	if (Rect((seekerX*tileSize) - (sight*tileSize), (seekerY* tileSize) - (sight*tileSize), (sight*2)*tileSize, (sight*2)*tileSize).intersects(dest->collider)) {
+	if (Rect((seekerX * tileSize) - (sight * tileSize), (seekerY * tileSize) - (sight * tileSize),
+		(sight *2 ) * tileSize, (sight * 2) * tileSize).intersects(dest->collider)) {
 		sighted = true;
 	}
 
-	AStar search;
 	//if destination entity is in sight then chase otherwise, 'patrol'
 	if (sighted) {
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ destX, destY }, walkable);
@@ -75,7 +84,7 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, 10);
 	}
 	seeker->aiMovePath(path);
-	for (Point2 x : path) { //DEBUG: Print path
+	/*for (Point2 x : path) { //DEBUG: Print path
 		std::cout << x.x << x.y << std::endl;
-	}
+	}*/
 }

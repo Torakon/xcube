@@ -3,10 +3,10 @@
 Node::Node(int xTile, int yTile, int distFrom, int distTo) : tilX(xTile), tilY(yTile), disG(distFrom), heuH(distTo){
 	id.append(std::to_string(tilX));
 	id.append(std::to_string(tilY));
-	weight = disG + heuH;
 }
 
 int Node::getWeight() {
+	weight = disG + heuH;
 	return weight;
 }
 
@@ -25,4 +25,17 @@ Node* Node::backtrack() {
 	else {
 		return this;
 	}
+}
+
+void Node::setVal(int newG, int newHeu) {
+	disG = newG;
+	heuH = newHeu;
+}
+
+void Node::setWalkable(bool condition) {
+	walk = condition;
+}
+
+bool Node::isWalkable() {
+	return walk;
 }

@@ -14,10 +14,11 @@ class AIController {
 		int mapX;
 		int mapY;
 		std::vector<Point2> path;
-		std::vector<Node*> open, close;
+		AStar search;
 	public:
-		std::vector<std::vector<bool >> walkable;
+		std::vector<std::vector<Node* >> walkable;
 		AIController();
+		~AIController();
 		void addMap(int, int, int, std::vector<std::shared_ptr<Rect>>);
 		void givePath(Entity*, Entity*);
 };

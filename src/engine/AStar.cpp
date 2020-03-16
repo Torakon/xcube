@@ -3,13 +3,19 @@
 AStar::AStar() : origin(0,0,0,0), goal(0,0,0,0) {
 
 }
-std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<bool >> mapData) { //maybe add tilesize to pass to nodes?
+
+AStar::~AStar(){
+
+}
+
+std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<Node* >> mapData) { //maybe add tilesize to pass to nodes?
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
-	std::vector<Node*> successor;
-	heu = (dest.x - start.x) + (dest.y - start.y);
 
-	open.push_back(new Node(start.x, start.y, 0, heu));
+	path.clear();
+
+	mapData[start.y][start.x]->setVal(0, (dest.x - start.x) + (dest.y - start.y));
+	open.push_back(mapData[start.y][start.x]);
 
 	while (!open.empty()) {
 		//get successors
@@ -22,17 +28,25 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
 		//check if cell exists
-		if (compare->tilX < mapData[0].size() - 1)
-			successor.push_back(new Node(compare->tilX + 1, compare->tilY, compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY)));
-		if (compare->tilY < mapData.size() - 1)
-			successor.push_back(new Node(compare->tilX, compare->tilY + 1, compare->disG + 1, (dest.x - compare->tilX) + (dest.y - (compare->tilY - 1))));
-		if (compare->tilX > 0)
-			successor.push_back(new Node(compare->tilX - 1, compare->tilY, compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY)));
-		if (compare->tilY > 0)
-			successor.push_back(new Node(compare->tilX, compare->tilY - 1, compare->disG + 1, (dest.x - compare->tilX) + (dest.y - (compare->tilY - 1))));
+		if (compare->tilX < mapData[0].size() - 1) {
+			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));
+			successor.push_back(mapData[compare->tilY][compare->tilX + 1]);
+		}
+		if (compare->tilY < mapData.size() - 1) {
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY + 1)); //was -1 in original?
+			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
+		}
+		if (compare->tilX > 0) {
+			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY));
+			successor.push_back(mapData[compare->tilY][compare->tilX - 1]);
+		}
+		if (compare->tilY > 0) {
+			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY - 1));
+			successor.push_back(mapData[compare->tilY - 1][compare->tilX]);
+		}
 		//check successors
 		while (!successor.empty()) {
-			if (mapData[successor.back()->tilY][successor.back()->tilX] == true) {
+			if (mapData[successor.back()->tilY][successor.back()->tilX]->isWalkable() == true) {
 				bool closeContained = false;
 				bool openContained = false;
 				for (Node * x : close) {
@@ -71,16 +85,17 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
-
+	close.clear();
 	return path;
 }
-std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<bool >> mapData, int depth) {
+std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<Node* >> mapData, int depth) {
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
-	std::vector<Node*> successor;
-	heu = (dest.x - start.x) + (dest.y - start.y);
 
-	open.push_back(new Node(start.x, start.y, 0, heu));
+	path.clear();
+
+	mapData[start.y][start.x]->setVal(0, (dest.x - start.x) + (dest.y - start.y));
+	open.push_back(mapData[start.y][start.x]);
 
 	while (!open.empty()) {
 		//get successors
@@ -93,17 +108,25 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
 		//check if cell exists
-		if (compare->tilX < mapData[0].size() - 1)
-			successor.push_back(new Node(compare->tilX + 1, compare->tilY, compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY)));
-		if (compare->tilY < mapData.size() - 1)
-			successor.push_back(new Node(compare->tilX, compare->tilY + 1, compare->disG + 1, (dest.x - compare->tilX) + (dest.y - (compare->tilY - 1))));
-		if (compare->tilX > 0)
-			successor.push_back(new Node(compare->tilX - 1, compare->tilY, compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY)));
-		if (compare->tilY > 0)
-			successor.push_back(new Node(compare->tilX, compare->tilY - 1, compare->disG + 1, (dest.x - compare->tilX) + (dest.y - (compare->tilY - 1))));
+		if (compare->tilX < mapData[0].size() - 1) {
+			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));
+			successor.push_back(mapData[compare->tilY][compare->tilX + 1]);
+		}
+		if (compare->tilY < mapData.size() - 1) {
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY + 1)); //was -1 in original?
+			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
+		}
+		if (compare->tilX > 0) {
+			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY));
+			successor.push_back(mapData[compare->tilY][compare->tilX - 1]);
+		}
+		if (compare->tilY > 0) {
+			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY - 1));
+			successor.push_back(mapData[compare->tilY - 1][compare->tilX]);
+		}
 		//check successors
 		while (!successor.empty()) {
-			if (mapData[successor.back()->tilY][successor.back()->tilX] == true) {
+			if (mapData[successor.back()->tilY][successor.back()->tilX]->isWalkable() == true) {
 				bool closeContained = false;
 				bool openContained = false;
 				for (Node * x : close) {
@@ -141,6 +164,6 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
-
+	close.clear();
 	return path;
 }
