@@ -14,8 +14,13 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 
 	path.clear();
 
-	mapData[start.y][start.x]->setVal(0, (dest.x - start.x) + (dest.y - start.y));
+	mapData[start.y][start.x]->setVal(0, ((dest.x - start.x) ^ 2) + ((dest.y - start.y) ^ 2));
 	open.push_back(mapData[start.y][start.x]);
+
+	if (mapData[dest.y][dest.x]->isWalkable() == false) {
+		path.insert(path.begin(), start);
+		return path;
+	}
 
 	while (!open.empty()) {
 		//get successors
@@ -27,22 +32,30 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
-
+		int dif = 0;
 		//check if cell exists
 		if (compare->tilX < mapData[0].size() - 1) {
-			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));
+			dif = ((dest.x - (compare->tilX + 1)) ^ 2) + ((dest.y - compare->tilY) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY][compare->tilX + 1]);
 		}
 		if (compare->tilY < mapData.size() - 1) {
-			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY + 1)); //was -1 in original?
+			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY + 1) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif); //was -1 in original?
 			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
 		}
 		if (compare->tilX > 0) {
-			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY));
+			dif = ((dest.x - (compare->tilX - 1)) ^ 2) + ((dest.y - compare->tilY) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY][compare->tilX - 1]);
 		}
 		if (compare->tilY > 0) {
-			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY - 1));
+			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY - 1) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY - 1][compare->tilX]);
 		}
 		//check successors
@@ -82,20 +95,33 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	bckNode = compare;
 
 	while (bckNode->getID() != origin.getID()) {
+		//std::cout << goal.getID() << std::endl;
+		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl;
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
 	close.clear();
+	//std::cout << std::endl;
+
+	/*for (Point2 x : path) {
+		std::cout << x.x << " " << x.y << std::endl;
+	}*/
 	return path;
 }
+
 std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<Node* >> mapData, int depth) {
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
 
 	path.clear();
 
-	mapData[start.y][start.x]->setVal(0, (dest.x - start.x) + (dest.y - start.y));
+	mapData[start.y][start.x]->setVal(0, ((dest.x - start.x) ^ 2) + ((dest.y - start.y) ^ 2));
 	open.push_back(mapData[start.y][start.x]);
+
+	if (mapData[dest.y][dest.x]->isWalkable() == false) {
+		path.insert(path.begin(), start);
+		return path;
+	}
 
 	while (!open.empty()) {
 		//get successors
@@ -107,22 +133,30 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
-
+		int dif = 0;
 		//check if cell exists
 		if (compare->tilX < mapData[0].size() - 1) {
-			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX + 1)) + (dest.y - compare->tilY));
+			dif = ((dest.x - (compare->tilX + 1)) ^ 2) + ((dest.y - compare->tilY) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY][compare->tilX + 1]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY][compare->tilX + 1]);
 		}
 		if (compare->tilY < mapData.size() - 1) {
-			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY + 1)); //was -1 in original?
+			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY + 1) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY + 1][compare->tilX]->setVal(compare->disG + 1, dif); //was -1 in original?
 			successor.push_back(mapData[compare->tilY + 1][compare->tilX]);
 		}
 		if (compare->tilX > 0) {
-			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, (dest.x - (compare->tilX - 1)) + (dest.y - compare->tilY));
+			dif = ((dest.x - (compare->tilX - 1)) ^ 2) + ((dest.y - compare->tilY) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY][compare->tilX - 1]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY][compare->tilX - 1]);
 		}
 		if (compare->tilY > 0) {
-			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, (dest.x - (compare->tilX)) + (dest.y - compare->tilY - 1));
+			dif = ((dest.x - (compare->tilX)) ^ 2) + ((dest.y - compare->tilY - 1) ^ 2);
+			if (dif < 0) dif *= -1;
+			mapData[compare->tilY - 1][compare->tilX]->setVal(compare->disG + 1, dif);
 			successor.push_back(mapData[compare->tilY - 1][compare->tilX]);
 		}
 		//check successors
@@ -155,16 +189,23 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			}
 			successor.pop_back();
 		}
-		if (compare->getID() == goal.getID()||compare->disG >= depth) {
+		if (compare->getID() == goal.getID()|| compare->getWeight() > depth) {
 			open.clear();
 		}
 	}
 	bckNode = compare;
 
 	while (bckNode->getID() != origin.getID()) {
+		//std::cout << goal.getID() << std::endl;
+		//std::cout << "X" << bckNode->tilX << " Y" << bckNode->tilY << " weight" << bckNode->getWeight() << std::endl;
 		path.insert(path.begin(), Point2{ bckNode->tilX, bckNode->tilY });
 		bckNode = bckNode->backtrack();
 	}
 	close.clear();
+	//std::cout << std::endl;
+	
+	/*for (Point2 x : path) {
+		std::cout << x.x << " " << x.y << std::endl;
+	}*/
 	return path;
 }
