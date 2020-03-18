@@ -9,14 +9,14 @@ class Node {
 	private:
 		std::string id;
 		int weight;
-		Node * parentNode;
+		std::shared_ptr<Node> parentNode;
 		bool walk = false;
 	public:
 		Node(int, int, int, int);
 		int getWeight();
-		void addParent(Node*);
+		void addParent(std::shared_ptr<Node>);
 		std::string getID();
-		Node* backtrack();
+		std::shared_ptr<Node> backtrack();
 		void setVal(int, int);
 		void setWalkable(bool);
 		bool isWalkable();

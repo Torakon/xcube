@@ -61,7 +61,6 @@ void Entity::moveAlongPath() {
 		int yDif = ((w + 1)*destinationY) - y;
 		if (xDif < 0) xDif *= -1;
 		if (yDif < 0) yDif *= -1;
-		std::cout << xDif << " " << yDif << std::endl;
 		if (xDif < speed) moveX(xDif);
 		if (yDif < speed) moveY(yDif);
 

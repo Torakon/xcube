@@ -19,7 +19,7 @@ class AIController {
 		AStar search;
 		Point2 patrolCent;
 	public:
-		std::vector<std::vector<Node* >> walkable;
+		std::vector<std::vector<std::shared_ptr<Node> >> walkable;
 		AIController();
 		~AIController();
 		void addMap(int, int, int, std::vector<std::shared_ptr<Rect>>);

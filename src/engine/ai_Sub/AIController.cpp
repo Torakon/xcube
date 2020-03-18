@@ -5,12 +5,7 @@ AIController::AIController() : tileSize(0), mapX(0), mapY(0) {
 }
 
 AIController::~AIController() {
-	while (!walkable.empty()) {
-		for each(Node* x in walkable[0]) {
-			delete x; //Read access violation, look into avoiding raw pointers
-		}
-	}
-	walkable.clear();
+	walkable.erase;
 } 
 
 void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::shared_ptr<Rect>> map) {
@@ -27,11 +22,11 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 	mapY = yPixel / tile;
 
 	//On occasion of n+1 maps, Deletes old Node data
-	while (!walkable.empty()) {
-		for each (Node* x in walkable[0]) {
+	/*while (!walkable.empty()) {
+		for each (Node x in walkable[0]) {
 			delete x;
 		}
-	}
+	}*/
 	walkable.clear();
 
 	//Following code creates a gameworld based on pixel size and tile size fed to it. 2d Vector data structure used for visualisation
@@ -39,7 +34,8 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 	bool wCheck = true;
 	for (int i = 0; i < mapX; i++) {
 		for (int j = 0; j < mapY; j++) {
-			Node* push = new Node(j, i, tileSize, tileSize);
+			Node push = Node(j, i, tileSize, tileSize);
+
 			wCheck = true;
 			for (auto block : map) {
 				if (Rect(j * tileSize, i * tileSize, tileSize, tileSize).intersects(*block)) {
@@ -47,8 +43,8 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 					break;
 				}
 			}
-			push->setWalkable(wCheck);
-			walkable[i].push_back(push);
+			push.setWalkable(wCheck);
+			walkable[i].push_back(std::make_shared<Node>(push));
 		}
 	}	
 	//The below code to print a visualisation of the game world to console is edited from "Vlad from Moscow" - https://stackoverflow.com/questions/42249303/how-can-i-push-back-data-in-a-2d-vector-of-type-int 05/03/2020

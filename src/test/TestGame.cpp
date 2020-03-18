@@ -124,11 +124,12 @@ void TestGame::update() {
 	}
 
 	velocity = Vector2i(0, 0);
-	if (npc->getPathProgress() < 1) {
+	if ((npc->getPathProgress() < 1) && (!npc->collider.intersects(player->collider))) {
 		npc->moveAlongPath();
 	} else {
 		ai->givePath(npc, player);
 	}
+
 	if (keys == 0) {
 		gameWon = true;
 	}

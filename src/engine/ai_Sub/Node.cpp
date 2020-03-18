@@ -10,7 +10,7 @@ int Node::getWeight() {
 	return weight;
 }
 
-void Node::addParent(Node* node) {
+void Node::addParent(std::shared_ptr<Node> node) {
 	parentNode = node;
 }
 
@@ -18,12 +18,12 @@ std::string Node::getID() {
 	return id;
 }
 
-Node* Node::backtrack() {
+std::shared_ptr<Node> Node::backtrack() {
 	if (parentNode != nullptr) {
 		return parentNode;
 	}
 	else {
-		return this;
+		return NULL;
 	}
 }
 

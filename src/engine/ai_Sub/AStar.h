@@ -7,24 +7,24 @@
 
 class AStar {
 private:
-	std::vector<Node*> open;
-	std::vector<Node*> close;
+	std::vector<std::shared_ptr<Node >> open;
+	std::vector<std::shared_ptr<Node >> close;
 
-	Node * compare;
-	Node * bckNode;
+	std::shared_ptr<Node> compare;
+	std::shared_ptr<Node> bckNode;
 
 	Node origin;
 	Node goal;
 
-	std::vector<Node *> successor;
+	std::vector<std::shared_ptr<Node >> successor;
 	std::vector<Point2> path;
 
 	int heu;
 public:
 	AStar();
 	~AStar();
-	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<Node* >>);
-	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<Node* >>, int);
+	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<std::shared_ptr<Node> >>);
+	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<std::shared_ptr<Node> >>, int);
 };
 
 #endif

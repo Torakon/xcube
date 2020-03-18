@@ -8,7 +8,7 @@ AStar::~AStar(){
 
 }
 
-std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<Node* >> mapData) { //maybe add tilesize to pass to nodes?
+std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<std::shared_ptr<Node> >> mapData) { //maybe add tilesize to pass to nodes?
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
 
@@ -25,7 +25,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	while (!open.empty()) {
 		//get successors
 		compare = open.back();
-		for (Node * x : open) {
+		for (std::shared_ptr<Node> x : open) {
 			if (x->getWeight() < compare->getWeight()) {
 				compare = x;
 			}
@@ -63,14 +63,14 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			if (mapData[successor.back()->tilY][successor.back()->tilX]->isWalkable() == true) {
 				bool closeContained = false;
 				bool openContained = false;
-				for (Node * x : close) {
+				for (std::shared_ptr<Node> x : close) {
 					if (x->getID() == successor.back()->getID()) {
 						closeContained = true;
 						break;
 					}
 				}
 				if (!closeContained) {
-					for (Node * x : open) {
+					for (std::shared_ptr<Node> x : open) {
 						if (x->getID() == successor.back()->getID()) {
 							openContained = true;
 							if (x->disG > successor.back()->disG) {
@@ -106,7 +106,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	return path;
 }
 
-std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<Node* >> mapData, int depth) {
+std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<std::shared_ptr<Node> >> mapData, int depth) {
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
 
@@ -123,7 +123,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	while (!open.empty()) {
 		//get successors
 		compare = open.back();
-		for (Node * x : open) {
+		for (std::shared_ptr<Node> x : open) {
 			if (x->getWeight() < compare->getWeight()) {
 				compare = x;
 			}
@@ -161,14 +161,14 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			if (mapData[successor.back()->tilY][successor.back()->tilX]->isWalkable() == true) {
 				bool closeContained = false;
 				bool openContained = false;
-				for (Node * x : close) {
+				for (std::shared_ptr<Node> x : close) {
 					if (x->getID() == successor.back()->getID()) {
 						closeContained = true;
 						break;
 					}
 				}
 				if (!closeContained) {
-					for (Node * x : open) {
+					for (std::shared_ptr<Node> x : open) {
 						if (x->getID() == successor.back()->getID()) {
 							openContained = true;
 							if (x->disG > successor.back()->disG) {
