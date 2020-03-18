@@ -1,5 +1,5 @@
-1) Sort out collisions between player and AI so that they do not merge together and restrict movement.
+1) Sort out collisions between player and AI so that they do not merge together and restrict movement. --STATUS: DONE, needs refining
 2) Refine line of sight so that it takes walls into account.
 3) Tidy up code (low priority at the moment).
 4) Look into further optimising the search algorithm, at the moment there can be a noticeable stutter in frames when it goes into effect. --stutter put down to debug code printing to console
-5) Read Access Violation when deleting pointers to Node. Likely due to Raw Pointers, make needed adjustments.
+5) Read Access Violation when deleting pointers to Node. Likely due to Raw Pointers, make needed adjustments. --STATUS: DONE, for pathfinding. should look into changing other raw pointers
