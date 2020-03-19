@@ -85,6 +85,9 @@ void TestGame::handleKeyEvents() {
 }
 
 void TestGame::update() {
+	if (state != gameState::PLAY) {
+		state = gameState::PLAY;
+	}
 	player->moveX(velocity.x);
 	
 	for (auto block : wall) {
@@ -129,9 +132,12 @@ void TestGame::update() {
 	} else {
 		ai->givePath(npc, player);
 	}
+	if (npc->collider.intersects(player->collider)) {
+		state = gameState::LOSE;
+	}
 
 	if (keys == 0) {
-		gameWon = true;
+		state = gameState::WIN;
 	}
 }
 
@@ -157,6 +163,18 @@ void TestGame::renderUI() {
 	std::string scoreStr = std::to_string(score);
 	gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
 
-	if (gameWon)
+	switch (state) {
+	case gameState::WIN :
 		gfx->drawText("YOU WON", 250, 500);
+		break;
+	case gameState::LOSE : 
+		gfx->drawText("YOU LOSE", 250, 500);
+		player->setXY(Point2{ 0, 0 });
+		npc->setXY(Point2{ width-tileSize, 0 });
+		npc->clearPath();
+		score -= 50;
+		break;
+	default :
+		break;
+	}
 }

@@ -17,10 +17,12 @@ class Node {
 		void addParent(std::shared_ptr<Node>);
 		std::string getID();
 		std::shared_ptr<Node> backtrack();
-		void setVal(int, int);
+		void setGHCost(int, int);
+		int getGVal();
+		int getHVal();
 		void setWalkable(bool);
 		bool isWalkable();
-		char direction;
+
 		int cellSize;
 		int tilX;
 		int tilY;

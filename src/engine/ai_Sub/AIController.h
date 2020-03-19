@@ -17,12 +17,13 @@ class AIController {
 
 		std::vector<Point2> path;
 		AStar search;
-		Point2 patrolCent;
+		//Point2 patrolCent;
 	public:
 		std::vector<std::vector<std::shared_ptr<Node> >> walkable;
 		AIController();
 		~AIController();
 		void addMap(int, int, int, std::vector<std::shared_ptr<Rect>>);
 		void givePath(Entity*, Entity*);
+		void givePath(Entity*, Point2);
 };
 #endif
