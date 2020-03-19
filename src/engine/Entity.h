@@ -31,6 +31,8 @@ class Entity {
 		void moveX(int);
 		void moveY(int);
 
+		void setXY(Point2);
+
 		void setSight(int);
 		int getSight();
 
@@ -43,6 +45,7 @@ class Entity {
 		void moveAlongPath();
 		void aiMovePath(std::vector<Point2>);
 		float getPathProgress();
+		void clearPath();
 };
 
 #endif

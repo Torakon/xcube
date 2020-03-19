@@ -28,6 +28,11 @@ void Entity::moveY(int yDif) {
 	collider.y = y;
 }
 
+void Entity::setXY(Point2 xy) {
+	x = xy.x; display->x = xy.x; collider.x = xy.x;
+	y = xy.y; display->y = xy.y; collider.y = xy.y;
+}
+
 void Entity::setSight(int dist) {
 	sight = dist;
 }
@@ -102,4 +107,6 @@ float Entity::getPathProgress() {
 	return (nodesPassed/pathCheck.size());
 }
 
-
+void Entity::clearPath() {
+	pathCheck.clear();
+}
