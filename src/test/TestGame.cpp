@@ -2,15 +2,16 @@
 
 TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
-	SDL_Texture * texture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
+	SDL_Texture * entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
+	//SDL_Texture * wallTexture = ResourceManager::loadTexture("", { 0, 0, 0xFF });
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
 
 	gen = new MazeGenerator(width/tileSize, height/tileSize);
 	gen->generateMaze(0, 0);
 	for (int i = 0; i < height / tileSize; i++) {
-		for (int j = 0; j < width / tileSize; j++) {
-			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) {
+		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning texture.
+			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { //at the very least look into making the aesthetic more dynamic
 				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
 			}
 		}
@@ -40,7 +41,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 					}
 				}
 				if (!check) {
-					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are ciurrently spawning blocked off on all sides
+					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are currently spawning blocked off on all sides
 					k->alive = true;											//maybe move demo goal away from 'keys' concept
 					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
 					points.push_back(k);
@@ -51,10 +52,10 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	}
 
 	keys = points.size();
-	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, texture);
+	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, entityTexture);
 	npc->setSight(10);
 	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD)
-	player = new Entity(1, 1, tileSize-1, tileSize-1, true, texture);
+	player = new Entity(1, 1, tileSize-1, tileSize-1, true, entityTexture);
 	ai->addMap(tileSize, width, height, wall);
 }
 
@@ -82,62 +83,69 @@ void TestGame::handleKeyEvents() {
 	if (eventSystem->isPressed(Key::D)) {
 		velocity.x = speed;
 	}
+
+	if (eventSystem->isPressed(Key::ENTER)) {
+		if (!playIntent) { playIntent = true; }
+	}
 }
 
 void TestGame::update() {
-	if (state != gameState::PLAY) {
-		state = gameState::PLAY;
+	if (state != PLAY) {
+		if (playIntent) { state = PLAY; }
 	}
-	player->moveX(velocity.x);
-	
-	for (auto block : wall) {
-		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
-			player->moveX(-velocity.x);
-			break;
-		}
-	}
-	for (auto block : wall) { //currently ai just merges with player
-		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
-			npc->moveX(-npcVel.x);
-			break;
-		}
-	}
+	else {
+		player->moveX(velocity.x);
 
-	player->moveY(velocity.y);
-
-	for (auto block : wall) {
-		if (player->collider.intersects(*block)||player->collider.intersects(npc->collider)) {
-			player->moveY(-velocity.y);
-			break;
+		for (auto block : wall) {
+			if (player->collider.intersects(*block) || player->collider.intersects(npc->collider)) {
+				player->moveX(-velocity.x);
+				break;
+			}
 		}
-	}
-	for (auto block : wall) { //currently ai just merges with player
-		if (npc->collider.intersects(*block)||npc->collider.intersects(player->collider)) {
-			npc->moveY(-npcVel.y);
-			break;
+		for (auto block : wall) { //currently ai just merges with player
+			if (npc->collider.intersects(*block) || npc->collider.intersects(player->collider)) {
+				npc->moveX(-npcVel.x);
+				break;
+			}
 		}
-	}
 
-	for (auto key : points) {
-		if (key->alive && player->collider.contains(key->pos)) {
-			score += 200;
-			key->alive = false;
-			keys--;
+		player->moveY(velocity.y);
+
+		for (auto block : wall) {
+			if (player->collider.intersects(*block) || player->collider.intersects(npc->collider)) {
+				player->moveY(-velocity.y);
+				break;
+			}
 		}
-	}
+		for (auto block : wall) { //currently ai just merges with player
+			if (npc->collider.intersects(*block) || npc->collider.intersects(player->collider)) {
+				npc->moveY(-npcVel.y);
+				break;
+			}
+		}
 
-	velocity = Vector2i(0, 0);
-	if ((npc->getPathProgress() < 1) && (!npc->collider.intersects(player->collider))) {
-		npc->moveAlongPath();
-	} else {
-		ai->givePath(npc, player);
-	}
-	if (npc->collider.intersects(player->collider)) {
-		state = gameState::LOSE;
-	}
+		for (auto key : points) {
+			if (key->alive && player->collider.contains(key->pos)) {
+				score += 200;
+				key->alive = false;
+				keys--;
+			}
+		}
 
-	if (keys == 0) {
-		state = gameState::WIN;
+		velocity = Vector2i(0, 0);
+		if ((npc->getPathProgress() < 1) && (!npc->collider.intersects(player->collider))) {
+			npc->moveAlongPath();
+		}
+		else {
+			ai->givePath(npc, player);
+		}
+		if (npc->collider.intersects(player->collider)) {
+			state = LOSE;
+		}
+
+		if (keys == 0) {
+			state = WIN;
+		}
 	}
 }
 
@@ -156,24 +164,37 @@ void TestGame::render() {
 	for (auto key : points)
 		if (key->alive)
 			gfx->drawPoint(key->pos);
+	if (state == PAUSE) {
+		gfx->setDrawColor(SDL_COLOR_BLACK);
+		gfx->drawRect(0, 0, width, height);
+	}
 }
 
 void TestGame::renderUI() {
 	gfx->setDrawColor(SDL_COLOR_AQUA);
 	std::string scoreStr = std::to_string(score);
-	gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
 
 	switch (state) {
-	case gameState::WIN :
+	case WIN :
 		gfx->drawText("YOU WON", 250, 500);
 		break;
-	case gameState::LOSE : 
+	case LOSE : 
 		gfx->drawText("YOU LOSE", 250, 500);
 		player->setXY(Point2{ 0, 0 });
 		npc->setXY(Point2{ width-tileSize, 0 });
 		npc->clearPath();
 		score -= 50;
 		break;
+	case PAUSE:
+		gfx->setDrawColor(SDL_COLOR_BLACK);
+		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
+		gfx->setDrawColor(SDL_COLOR_WHITE);
+		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
+		gfx->drawText("Press Enter to Play", width*0.25, height*0.5);
+		break;
+	case PLAY :
+		gfx->setDrawColor(SDL_COLOR_AQUA);
+		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
 	default :
 		break;
 	}

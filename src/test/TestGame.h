@@ -30,9 +30,11 @@ class TestGame : public AbstractGame {
 		std::vector<std::shared_ptr<GameKey>> points;
 
 		/* GAMEPLAY */
-		int score, keys, lives, state;
+		int score, keys, lives;
 		bool gameWon;
+		bool playIntent = false;
 		enum gameState { PAUSE, PLAY, WIN, LOSE };
+		gameState state = PAUSE;
 
 		void handleKeyEvents();
 		void update();
