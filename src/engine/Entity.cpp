@@ -1,12 +1,59 @@
 #include "Entity.h"
 
-Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * inputTexture) : x(xPos), y(yPos), h(height), w(width), bBox(bounding), collider(0, 0, 0, 0) {
+Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * inputTexture) : x(xPos), y(yPos), h(height), w(width), collider(0, 0, 0, 0) {
 	texture = inputTexture; //can we set bounding box based on image size?
 	display = new SDL_Rect{ x, y, h, w }; 
 
-	if (bBox) {
+	if (bounding) {
 		addBounding();
 	}
+}
+
+int Entity::getX() {
+	return x;
+}
+
+int Entity::getY() {
+	return y;
+}
+
+int Entity::getSight() {
+	return sight;
+}
+
+int Entity::getSpeed() {
+	return speed;
+}
+
+bool Entity::getPatrol() {
+	return randomPatrolB;
+}
+
+Rect Entity::getCollider() {
+	return collider;
+}
+
+SDL_Texture* Entity::getTexture() {
+	return texture;
+}
+
+SDL_Rect* Entity::getDisplay() {
+	return display;
+}
+
+float Entity::getPathProgress() {
+	if (pathCheck.size() == 0) {
+		return 1;
+	}
+	if (nodesPassed == 0) {
+		return 0;
+	}
+	if (nodesPassed == pathCheck.size()) {
+		nodesPassed = 0;
+		return 1;
+	}
+	nodesPassed = 0;
+	return (nodesPassed / pathCheck.size());
 }
 
 //adds a collider in the form of a box
@@ -37,24 +84,12 @@ void Entity::setSight(int dist) {
 	sight = dist;
 }
 
-int Entity::getSight() {
-	return sight;
-}
-
 void Entity::setSpeed(int x) {
 	speed = x;
 }
 
-int Entity::getSpeed() {
-	return speed;
-}
-
 void Entity::patrol(bool yesNo) {
 	randomPatrolB = yesNo; //possibly promote to Component type and just call one method of get behaviour that returns a list of Components for access
-}
-
-bool Entity::getPatrol() {
-	return randomPatrolB;
 }
 
 void Entity::moveAlongPath() {
@@ -64,6 +99,7 @@ void Entity::moveAlongPath() {
 
 		int xDif = ((w + 1)*destinationX) - x;
 		int yDif = ((w + 1)*destinationY) - y;
+
 		if (xDif < 0) xDif *= -1;
 		if (yDif < 0) yDif *= -1;
 		if (xDif < speed) moveX(xDif);
@@ -90,21 +126,6 @@ void Entity::moveAlongPath() {
 
 void Entity::aiMovePath(std::vector<Point2> path) {
 	pathCheck = path;
-}
-
-float Entity::getPathProgress() {
-	if (pathCheck.size() == 0) {
-		return 1;
-	}
-	if (nodesPassed == 0) {
-		return 0;
-	}
-	if (nodesPassed == pathCheck.size()) {
-		nodesPassed = 0;
-		return 1;
-	}
-	nodesPassed = 0;
-	return (nodesPassed/pathCheck.size());
 }
 
 void Entity::clearPath() {
