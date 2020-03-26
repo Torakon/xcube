@@ -2,8 +2,16 @@
 
 TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
+
 	SDL_Texture * entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
-	//SDL_Texture * wallTexture = ResourceManager::loadTexture("", { 0, 0, 0xFF });
+	imgWall = ResourceManager::loadTexture("res/texture/imgWall15.png", { 0,0,0xFF }); //self created
+	imgBacking = ResourceManager::loadTexture("res/texture/imgBackground510.png", { 0,0,0xFF }); //self created
+	imgCoin = ResourceManager::loadTexture("res/texture/imgCoin01.png", { 0,0,0xFF }); //self created
+
+	aiCollide = ResourceManager::loadSound("res/sound/sndFailure.wav");
+	coin = ResourceManager::loadSound("res/sound/sndCoin.wav");
+	coin->volume = 10;
+
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
 
@@ -16,6 +24,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 			}
 		}
 	}
+
 	//world bounds
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width+tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height+tileSize)));
@@ -36,13 +45,15 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 
 			if (keys > 0 && getRandom(0, 200) <= 1) {
 				bool check = false;
-				for (auto block : wall) {
-					if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
+					if (ai->checkPossible(Point2{ (width/2)/dist, (height/2)/dist }, Point2{ j , i })) { //checks for valid path to key --make faster, cut corners
+						check = true;
+						//break;
+					}
+					/*if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
 						check = true;
 						break;
-					}
-				}
-				if (!check) {
+					}*/
+				if (check) {
 					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are currently spawning blocked off on all sides
 					k->alive = true;											//maybe move demo goal away from 'keys' concept
 					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
@@ -93,13 +104,22 @@ void TestGame::handleKeyEvents() {
 		velocity.x = speed;
 	}
 
+	if (eventSystem->isPressed(Key::P)) {
+		if (state == PLAY) {
+			playIntent = false;
+			state = PAUSE;
+		}
+	}
+
 	if (eventSystem->isPressed(Key::ENTER)) {
-		if (!playIntent) { playIntent = true; }
+		if (!playIntent) { 
+			playIntent = true; 
+		}
 	}
 }
 
 void TestGame::update() {
-	if (state == PAUSE || state == LOSE) {
+	if (state != PLAY) {
 		if (playIntent) { state = PLAY; }
 	}
 	else {
@@ -135,6 +155,7 @@ void TestGame::update() {
 
 		for (auto key : points) {
 			if (key->alive && player->getCollider().contains(key->pos)) {
+				Mix_PlayChannel(-1, coin, 0);
 				score += 200;
 				key->alive = false;
 				keys--;
@@ -147,7 +168,6 @@ void TestGame::update() {
 		}
 		else {
 			ai->givePath(npc, player);
-			std::cout << "NEW PATH" << std::endl;
 		}
 
 		/*if ((npc2->getPathProgress() < 1) && (!npc2->collider.intersects(player->collider))) {
@@ -165,6 +185,7 @@ void TestGame::update() {
 
 		if (npc->getCollider().intersects(player->getCollider())) {
 			state = LOSE;
+			Mix_PlayChannel(-1, aiCollide, 0);
 		}
 
 		if (keys == 0) {
@@ -174,21 +195,33 @@ void TestGame::update() {
 }
 
 void TestGame::render() {
+	SDL_Rect * bg = new SDL_Rect{ 0,0,width,height };
+	gfx->drawTexture(imgBacking, NULL, bg);
+	delete bg;
+
 	gfx->drawTexture(npc->getTexture(), NULL, npc->getDisplay());
 	//gfx->drawTexture(npc2->texture, NULL, npc2->display);
 	//gfx->drawTexture(npc3->texture, NULL, npc3->display);
 
-	gfx->drawTexture(npc->getTexture(), NULL, player->getDisplay());
+	gfx->drawTexture(player->getTexture(), NULL, player->getDisplay());
 
 	gfx->setDrawColor(SDL_COLOR_WHITE);
 
-	for (auto block : wall)
-		gfx->drawRect(block->x, block->y, block->w, block->h);
 
-	gfx->setDrawColor(SDL_COLOR_YELLOW);
+	for (auto block : wall) {
+		gfx->drawRect(block->x, block->y, block->w, block->h);
+		SDL_Rect * draw = new SDL_Rect{ block->x, block->y, block->w, block->h };
+		gfx->drawTexture(imgWall, NULL, draw);
+		delete draw;
+	}
+
 	for (auto key : points)
-		if (key->alive)
+		if (key->alive) {
+			SDL_Rect * coinRect = new SDL_Rect{ key->pos.x - 4, key->pos.y - 4, 9, 9 };
+			gfx->drawTexture(imgCoin, NULL, coinRect);
 			gfx->drawPoint(key->pos);
+			delete coinRect;
+		}
 	if (state == PAUSE) {
 		gfx->setDrawColor(SDL_COLOR_BLACK);
 		gfx->drawRect(0, 0, width, height);
@@ -202,6 +235,8 @@ void TestGame::renderUI() {
 	switch (state) {
 	case WIN :
 		gfx->drawText("YOU WON", 250, 500);
+		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
+		playIntent = false;
 		break;
 	case LOSE : 
 		gfx->drawText("YOU LOSE", 250, 500);
@@ -209,6 +244,7 @@ void TestGame::renderUI() {
 		npc->setXY(Point2{ width-tileSize, 0 });
 		npc->clearPath();
 		score -= 50;
+		playIntent = false;
 		break;
 	case PAUSE :
 		gfx->setDrawColor(SDL_COLOR_BLACK);

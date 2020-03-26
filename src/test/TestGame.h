@@ -16,6 +16,12 @@ class TestGame : public AbstractGame {
 		Entity * npc;
 		//Entity * npc2;
 		//Entity * npc3;
+
+		SDL_Texture * imgWall;
+		SDL_Texture * imgBacking;
+		SDL_Texture * imgCoin;
+		Mix_Chunk * coin;
+		Mix_Chunk * aiCollide;
 		
 		int width;
 		int height;
