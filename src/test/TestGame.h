@@ -14,6 +14,8 @@ class TestGame : public AbstractGame {
 	private:
 		Entity * player;
 		Entity * npc;
+		//Entity * npc2;
+		//Entity * npc3;
 		
 		int width;
 		int height;

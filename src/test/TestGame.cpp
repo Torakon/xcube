@@ -22,6 +22,8 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width+tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height+tileSize)));
 
+	ai->addMap(tileSize, width, height, wall);
+
 	int dist = tileSize;
 
 	for (int i = 0; i < gen->y; ++i) {
@@ -50,18 +52,25 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 			}
 		}
 	}
-
 	keys = points.size();
 	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, entityTexture);
 	npc->setSight(10);
 	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD)
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, entityTexture);
-	ai->addMap(tileSize, width, height, wall);
+
+	/*npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
+	npc2->setSight(10);
+	npc2->patrol(true); 
+	npc3 = new Entity(271, 271, tileSize - 1, tileSize - 1, true, entityTexture);
+	npc3->setSight(10);
+	npc3->patrol(true); */
 }
 
 TestGame::~TestGame() {
 	delete gen;
 	delete npc;
+	//delete npc2;
+	//delete npc3;
 	delete player;
 }
 
@@ -90,20 +99,20 @@ void TestGame::handleKeyEvents() {
 }
 
 void TestGame::update() {
-	if (state != PLAY) {
+	if (state == PAUSE || state == LOSE) {
 		if (playIntent) { state = PLAY; }
 	}
 	else {
 		player->moveX(velocity.x);
 
 		for (auto block : wall) {
-			if (player->collider.intersects(*block) || player->collider.intersects(npc->collider)) {
+			if (player->getCollider().intersects(*block) || player->getCollider().intersects(npc->getCollider())) {
 				player->moveX(-velocity.x);
 				break;
 			}
 		}
 		for (auto block : wall) { //currently ai just merges with player
-			if (npc->collider.intersects(*block) || npc->collider.intersects(player->collider)) {
+			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
 				npc->moveX(-npcVel.x);
 				break;
 			}
@@ -112,20 +121,20 @@ void TestGame::update() {
 		player->moveY(velocity.y);
 
 		for (auto block : wall) {
-			if (player->collider.intersects(*block) || player->collider.intersects(npc->collider)) {
+			if (player->getCollider().intersects(*block) || player->getCollider().intersects(npc->getCollider())) {
 				player->moveY(-velocity.y);
 				break;
 			}
 		}
 		for (auto block : wall) { //currently ai just merges with player
-			if (npc->collider.intersects(*block) || npc->collider.intersects(player->collider)) {
+			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
 				npc->moveY(-npcVel.y);
 				break;
 			}
 		}
 
 		for (auto key : points) {
-			if (key->alive && player->collider.contains(key->pos)) {
+			if (key->alive && player->getCollider().contains(key->pos)) {
 				score += 200;
 				key->alive = false;
 				keys--;
@@ -133,13 +142,28 @@ void TestGame::update() {
 		}
 
 		velocity = Vector2i(0, 0);
-		if ((npc->getPathProgress() < 1) && (!npc->collider.intersects(player->collider))) {
+		if ((npc->getPathProgress() < 1) && (!npc->getCollider().intersects(player->getCollider()))) {
 			npc->moveAlongPath();
 		}
 		else {
 			ai->givePath(npc, player);
+			std::cout << "NEW PATH" << std::endl;
 		}
-		if (npc->collider.intersects(player->collider)) {
+
+		/*if ((npc2->getPathProgress() < 1) && (!npc2->collider.intersects(player->collider))) {
+			npc2->moveAlongPath();
+		}
+		else {
+			ai->givePath(npc2, player);
+		}
+		if ((npc3->getPathProgress() < 1) && (!npc3->collider.intersects(player->collider))) {
+			npc3->moveAlongPath();
+		}
+		else {
+			ai->givePath(npc3, player);
+		}*/
+
+		if (npc->getCollider().intersects(player->getCollider())) {
 			state = LOSE;
 		}
 
@@ -150,15 +174,16 @@ void TestGame::update() {
 }
 
 void TestGame::render() {
-	gfx->drawTexture(npc->texture, NULL, npc->display);
-	gfx->drawTexture(npc->texture, NULL, player->display);
+	gfx->drawTexture(npc->getTexture(), NULL, npc->getDisplay());
+	//gfx->drawTexture(npc2->texture, NULL, npc2->display);
+	//gfx->drawTexture(npc3->texture, NULL, npc3->display);
+
+	gfx->drawTexture(npc->getTexture(), NULL, player->getDisplay());
+
 	gfx->setDrawColor(SDL_COLOR_WHITE);
+
 	for (auto block : wall)
 		gfx->drawRect(block->x, block->y, block->w, block->h);
-
-	gfx->setDrawColor(SDL_COLOR_RED); //temp to show boundingBox
-	gfx->drawRect(npc->collider); //temp to show boundingBox
-	gfx->drawRect(player->collider); //temp to show boundingBox
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : points)
@@ -185,7 +210,7 @@ void TestGame::renderUI() {
 		npc->clearPath();
 		score -= 50;
 		break;
-	case PAUSE:
+	case PAUSE :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
 		gfx->setDrawColor(SDL_COLOR_WHITE);
