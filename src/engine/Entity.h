@@ -19,12 +19,11 @@ class Entity {
 		SDL_Texture * texture;
 		SDL_Rect * display;
 		std::vector<Point2> pathCheck;
-
-		void addBounding();
 	
 	public:
 		Entity(int, int, int, int, bool, SDL_Texture *);
 
+		//getters
 		int getX();
 		int getY();
 		int getSight();
@@ -35,13 +34,15 @@ class Entity {
 		SDL_Rect * getDisplay();
 		float getPathProgress();
 
-		void moveX(int);
-		void moveY(int);
-
+		//setters
 		void setXY(Point2);
 		void setSight(int);
 		void setSpeed(int);
 		void patrol(bool);
+
+		//functional
+		void moveX(int);
+		void moveY(int);
 
 		void moveAlongPath();
 		void aiMovePath(std::vector<Point2>);

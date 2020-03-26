@@ -33,12 +33,12 @@ class Node {
 		int getWeight();
 		bool getEdge(edgeDir);
 		bool isWalkable();
+		std::shared_ptr<Node> backtrack();
 
 		//setters
 		void addParent(std::shared_ptr<Node>);
 		void setGHCost(int, int);
 		void setWalkable(bool);
-		std::shared_ptr<Node> backtrack();
 		void setEdge(edgeDir, bool);
 };
 #endif

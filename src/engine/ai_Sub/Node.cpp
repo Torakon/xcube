@@ -45,6 +45,15 @@ bool Node::getEdge(edgeDir directionGet) {
 	}
 }
 
+std::shared_ptr<Node> Node::backtrack() {
+	if (parentNode != nullptr) {
+		return parentNode;
+	}
+	else {
+		return NULL;
+	}
+}
+
 bool Node::isWalkable() {
 	return walk;
 }
@@ -60,15 +69,6 @@ void Node::setGHCost(int newG, int newHeu) {
 
 void Node::setWalkable(bool condition) {
 	walk = condition;
-}
-
-std::shared_ptr<Node> Node::backtrack() {
-	if (parentNode != nullptr) {
-		return parentNode;
-	}
-	else {
-		return NULL;
-	}
 }
 
 void Node::setEdge(edgeDir directionSet, bool possible) {

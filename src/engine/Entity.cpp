@@ -5,7 +5,7 @@ Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Tex
 	display = new SDL_Rect{ x, y, h, w }; 
 
 	if (bounding) {
-		addBounding();
+		collider = Rect(x, y, h, w);
 	}
 }
 
@@ -56,25 +56,6 @@ float Entity::getPathProgress() {
 	return (nodesPassed / pathCheck.size());
 }
 
-//adds a collider in the form of a box
-void Entity::addBounding() {
-	collider = Rect(x, y, h, w);
-}
-
-//moves entity's collider and texture display on the X axis
-void Entity::moveX(int xDif) {
-	x += xDif;
-	display->x = x;
-	collider.x = x;
-}
-
-//moves entity's collider and texture display on the Y axis
-void Entity::moveY(int yDif) {
-	y += yDif;
-	display->y = y;
-	collider.y = y;
-}
-
 void Entity::setXY(Point2 xy) {
 	x = xy.x; display->x = xy.x; collider.x = xy.x;
 	y = xy.y; display->y = xy.y; collider.y = xy.y;
@@ -90,6 +71,20 @@ void Entity::setSpeed(int x) {
 
 void Entity::patrol(bool yesNo) {
 	randomPatrolB = yesNo; //possibly promote to Component type and just call one method of get behaviour that returns a list of Components for access
+}
+
+//moves entity's collider and texture display on the X axis
+void Entity::moveX(int xDif) {
+	x += xDif;
+	display->x = x;
+	collider.x = x;
+}
+
+//moves entity's collider and texture display on the Y axis
+void Entity::moveY(int yDif) {
+	y += yDif;
+	display->y = y;
+	collider.y = y;
 }
 
 void Entity::moveAlongPath() {
