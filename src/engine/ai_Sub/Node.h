@@ -11,22 +11,32 @@ class Node {
 		int weight;
 		std::shared_ptr<Node> parentNode;
 		bool walk = false;
-	public:
-		Node(int, int, int, int);
-		int getWeight();
-		void addParent(std::shared_ptr<Node>);
-		std::string getID();
-		std::shared_ptr<Node> backtrack();
-		void setGHCost(int, int);
-		int getGVal();
-		int getHVal();
-		void setWalkable(bool);
-		bool isWalkable();
-
-		int cellSize;
 		int tilX;
 		int tilY;
 		int disG;
 		int heuH;
+	public:
+		enum edgeDir {NORTH, SOUTH, EAST, WEST};
+		bool n = false;
+		bool s = false;
+		bool e = false;
+		bool w = false;
+
+		Node(int, int, int, int);
+
+		int getX();
+		int getY();
+		std::string getID();
+		int getGVal();
+		int getHVal();
+		int getWeight();
+
+		void addParent(std::shared_ptr<Node>);
+		void setGHCost(int, int);
+		void setWalkable(bool);
+		bool isWalkable();
+		std::shared_ptr<Node> backtrack();
+		void setEdge(edgeDir, bool);
+		bool getEdge(edgeDir);
 };
 #endif

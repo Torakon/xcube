@@ -20,6 +20,7 @@ private:
 	std::vector<Point2> path;
 
 	int heu;
+	int dif;
 	bool depthConstraint = false;
 public:
 	AStar();
