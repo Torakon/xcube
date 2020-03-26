@@ -1,28 +1,29 @@
 #include "AIController.h"
 
 AIController::AIController() : tileSize(0), mapX(0), mapY(0) {
-	
+
 }
 
 AIController::~AIController() {
 	walkable.clear();
-} 
+}
 
 void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::shared_ptr<Rect>> map) {
+	//if tile cannot fit neatly into map size
 	if ((xPixel%tile != 0) || (yPixel%tile != 0)) {
 		try {
 			throw 1;
 		}
 		catch (int e) {
 			std::cout << "An exception occurred. Please make sure that the Tile Size fits into the Map Size" << std::endl;
-			}
+		}
 	}
+
 	tileSize = tile;
 	mapX = xPixel / tile;
 	mapY = yPixel / tile;
 
-	//On occasion of n+1 maps, Deletes old Node data
-	
+	//On occasion of n+1 maps/levels, Removes old Node data
 	walkable.clear();
 
 	//Following code creates a gameworld based on pixel size and tile size fed to it. 2d Vector data structure used for representation
@@ -42,7 +43,32 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 			push.setWalkable(wCheck);
 			walkable[i].push_back(std::make_shared<Node>(push));
 		}
-	}	
+	}
+	for (int i = 0; i < mapX; i++) {
+		for (int j = 0; j < mapY; j++) {
+			if (i > 0) {
+				if (walkable[i - 1][j]->isWalkable()) {
+					walkable[i][j]->setEdge(Node::NORTH, true);
+				}
+			}
+			if (i < walkable.size()-1) {
+				if (walkable[i + 1][j]->isWalkable()) {
+					walkable[i][j]->setEdge(Node::SOUTH, true);
+				}
+			}
+			if (j > 0) {
+				if (walkable[i][j - 1]->isWalkable()) {
+					walkable[i][j]->setEdge(Node::WEST, true);
+				}
+			}
+			if (j < walkable[0].size()-1) {
+				if (walkable[i][j + 1]->isWalkable()) {
+					walkable[i][j]->setEdge(Node::EAST, true);
+				}
+			}
+		}
+	}
+
 	//The below code to print a visualisation of the game world to console is edited from "Vlad from Moscow" - https://stackoverflow.com/questions/42249303/how-can-i-push-back-data-in-a-2d-vector-of-type-int 05/03/2020
 	/*for (const auto v : walkable)
 	{
@@ -53,15 +79,15 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 
 void AIController::givePath(Entity* seeker, Entity* dest) {
 	int sight = seeker->getSight();
-	int seekerX = seeker->x / tileSize;
-	int seekerY = seeker->y / tileSize;
-	int destX = dest->x / tileSize;
-	int destY = dest->y / tileSize;
+	int seekerX = seeker->getX() / tileSize;
+	int seekerY = seeker->getY() / tileSize;
+	int destX = dest->getX() / tileSize;
+	int destY = dest->getY() / tileSize;
 
 	//basic 'line of sight' currently does not take walls into account
 	bool sighted = false, complete = false;
 	if (Rect((seekerX * tileSize) - (sight * tileSize), (seekerY * tileSize) - (sight * tileSize),
-		(sight * 2) * tileSize, (sight * 2) * tileSize).intersects(dest->collider)) {
+		(sight * 2) * tileSize, (sight * 2) * tileSize).intersects(dest->getCollider())) {
 		sighted = true;
 	}
 
@@ -88,27 +114,22 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 		randomX += seekerX;
 		randomY += seekerY;
 
-		//std::cout << "Current " << seekerX << " " << seekerY << std::endl; //DEBUG
-		//std::cout << "Destination " << randomX << " " << randomY << std::endl; //DEBUG
-
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, sight);
 	}
 	seeker->aiMovePath(path);
-	/*for (Point2 x : path) { //DEBUG: Print path
-		std::cout << x.x << x.y << std::endl;
-	}*/
 }
 
 void AIController::givePath(Entity* seeker, Point2 dest) {
 	int sight = seeker->getSight();
-	int seekerX = seeker->x / tileSize;
-	int seekerY = seeker->y / tileSize;
+	int seekerX = seeker->getX() / tileSize;
+	int seekerY = seeker->getY() / tileSize;
 	int destX = dest.x / tileSize;
 	int destY = dest.y / tileSize;
 
 	if (seeker->getPatrol()) {
 		int randomX = std::rand() % (sight + 1) - (sight / 2);
 		int randomY = std::rand() % (sight + 1) - (sight / 2);
+
 		if (randomX + destX < 0) {
 			randomX *= -1;
 		}
@@ -127,5 +148,6 @@ void AIController::givePath(Entity* seeker, Point2 dest) {
 
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, sight);
 	}
+
 	seeker->aiMovePath(path);
 }
