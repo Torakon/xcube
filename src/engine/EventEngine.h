@@ -10,7 +10,7 @@
 #include "GameMath.h"
 
 enum Key {
-	W, S, A, D, ESC, SPACE, UP, DOWN, LEFT, RIGHT, QUIT, ENTER, LAST
+	W, S, A, D, ESC, SPACE, UP, DOWN, LEFT, RIGHT, QUIT, ENTER, P, LAST
 };
 
 enum Mouse {
