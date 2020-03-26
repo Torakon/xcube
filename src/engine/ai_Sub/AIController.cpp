@@ -154,3 +154,14 @@ void AIController::givePath(Entity* seeker, Point2 dest) {
 
 	seeker->aiMovePath(path);
 }
+
+bool AIController::checkPossible(Point2 begin, Point2 key) {
+	std::vector<Point2> check = search.AStarSearch(begin, key, walkable, 0);
+	if (!check.empty()) {
+		Point2 point = check[check.size() - 1];
+		if (point.x == key.x && point.y == key.y) {
+			return true;
+		}
+	}
+	return false;
+}

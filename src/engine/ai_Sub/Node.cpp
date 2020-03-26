@@ -33,13 +33,13 @@ int Node::getWeight() {
 bool Node::getEdge(edgeDir directionGet) {
 	switch (directionGet) {
 	case NORTH:
-		return n;
+		return nEdge;
 	case SOUTH:
-		return s;
+		return sEdge;
 	case EAST:
-		return e;
+		return eEdge;
 	case WEST:
-		return w;
+		return wEdge;
 	default:
 		return false;
 	}
@@ -74,16 +74,16 @@ void Node::setWalkable(bool condition) {
 void Node::setEdge(edgeDir directionSet, bool possible) {
 	switch (directionSet) {
 	case NORTH :
-		n = possible;
+		nEdge = possible;
 		break;
 	case SOUTH :
-		s = possible;
+		sEdge = possible;
 		break;
 	case EAST :
-		e = possible;
+		eEdge = possible;
 		break;
 	case WEST :
-		w = possible;
+		wEdge = possible;
 		break;
 	}
 }

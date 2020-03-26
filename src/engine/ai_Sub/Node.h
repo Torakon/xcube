@@ -9,16 +9,18 @@ class Node {
 	private:
 		std::string id;
 		std::shared_ptr<Node> parentNode;
-		bool walk = false;
+
 		int weight;
 		int tilX;
 		int tilY;
 		int disG;
 		int heuH;
-		bool n = false;
-		bool s = false;
-		bool e = false;
-		bool w = false;
+
+		bool walk = false;
+		bool nEdge = false;
+		bool sEdge = false;
+		bool eEdge = false;
+		bool wEdge = false;
 	public:
 		enum edgeDir {NORTH, SOUTH, EAST, WEST};
 
