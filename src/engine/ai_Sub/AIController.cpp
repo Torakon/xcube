@@ -44,6 +44,8 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 			walkable[i].push_back(std::make_shared<Node>(push));
 		}
 	}
+
+	//check and set moveable edges
 	for (int i = 0; i < mapX; i++) {
 		for (int j = 0; j < mapY; j++) {
 			if (i > 0) {
@@ -116,6 +118,7 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ randomX, randomY }, walkable, sight);
 	}
+
 	seeker->aiMovePath(path);
 }
 

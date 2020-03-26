@@ -24,7 +24,6 @@ private:
 	bool depthConstraint = false;
 public:
 	AStar();
-	~AStar();
 
 	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<std::shared_ptr<Node> >>, int);
 };

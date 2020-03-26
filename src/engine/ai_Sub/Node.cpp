@@ -30,6 +30,25 @@ int Node::getWeight() {
 	return weight;
 }
 
+bool Node::getEdge(edgeDir directionGet) {
+	switch (directionGet) {
+	case NORTH:
+		return n;
+	case SOUTH:
+		return s;
+	case EAST:
+		return e;
+	case WEST:
+		return w;
+	default:
+		return false;
+	}
+}
+
+bool Node::isWalkable() {
+	return walk;
+}
+
 void Node::addParent(std::shared_ptr<Node> node) {
 	parentNode = node;
 }
@@ -43,10 +62,6 @@ void Node::setWalkable(bool condition) {
 	walk = condition;
 }
 
-bool Node::isWalkable() {
-	return walk;
-}
-
 std::shared_ptr<Node> Node::backtrack() {
 	if (parentNode != nullptr) {
 		return parentNode;
@@ -56,8 +71,8 @@ std::shared_ptr<Node> Node::backtrack() {
 	}
 }
 
-void Node::setEdge(edgeDir x, bool possible) {
-	switch (x) {
+void Node::setEdge(edgeDir directionSet, bool possible) {
+	switch (directionSet) {
 	case NORTH :
 		n = possible;
 		break;
@@ -70,20 +85,5 @@ void Node::setEdge(edgeDir x, bool possible) {
 	case WEST :
 		w = possible;
 		break;
-	}
-}
-
-bool Node::getEdge(edgeDir x) {
-	switch (x) {
-	case NORTH:
-		return n;
-	case SOUTH:
-		return s;
-	case EAST:
-		return e;
-	case WEST:
-		return w;
-	default :
-		return false;
 	}
 }

@@ -4,10 +4,6 @@ AStar::AStar() : origin(0,0,0,0), goal(0,0,0,0) {
 
 }
 
-AStar::~AStar(){
-
-}
-
 std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<std::shared_ptr<Node> >> mapData, int depth) {
 	origin = { start.x, start.y, 0, 0 };
 	goal = { dest.x, dest.y, 0, 0 };
