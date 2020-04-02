@@ -1,6 +1,6 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) { //npc(1,271,29,29)
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) {
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 
 	SDL_Texture * entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
@@ -18,7 +18,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	gen = new MazeGenerator(width/tileSize, height/tileSize);
 	gen->generateMaze(0, 0);
 	for (int i = 0; i < height / tileSize; i++) {
-		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning texture.
+		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning different texture.
 			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { //at the very least look into making the aesthetic more dynamic
 				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
 			}
@@ -45,15 +45,14 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 
 			if (keys > 0 && getRandom(0, 200) <= 1) {
 				bool check = false;
-					if (ai->checkPossible(Point2{ (width/2)/dist, (height/2)/dist }, Point2{ j , i })) { //checks for valid path to key --make faster, cut corners
-						check = true;
-						//break;
-					}
-					/*if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
-						check = true;
-						break;
-					}*/
-				if (check) {
+				if (ai->checkPossible(Point2{ (width/2)/dist, (height/2)/dist }, Point2{ j , i })) { //checks for valid path to key --make faster, cut corners
+					check = true;
+				}
+				/*if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
+					check = true;
+					break;
+				}*/
+				if (check == true) {
 					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are currently spawning blocked off on all sides
 					k->alive = true;											//maybe move demo goal away from 'keys' concept
 					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
@@ -66,8 +65,10 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	keys = points.size();
 	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, entityTexture);
 	npc->setSight(10);
-	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD)
+	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD) etc.
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, entityTexture);
+	npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
+	npc2->setSight(20);
 
 	/*npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
 	npc2->setSight(10);
@@ -80,7 +81,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 TestGame::~TestGame() {
 	delete gen;
 	delete npc;
-	//delete npc2;
+	delete npc2;
 	//delete npc3;
 	delete player;
 }
@@ -170,13 +171,13 @@ void TestGame::update() {
 			ai->givePath(npc, player);
 		}
 
-		/*if ((npc2->getPathProgress() < 1) && (!npc2->collider.intersects(player->collider))) {
+		if ((npc2->getPathProgress() < 1) && (!npc2->getCollider().intersects(player->getCollider()))) {
 			npc2->moveAlongPath();
 		}
 		else {
 			ai->givePath(npc2, player);
 		}
-		if ((npc3->getPathProgress() < 1) && (!npc3->collider.intersects(player->collider))) {
+		/*if ((npc3->getPathProgress() < 1) && (!npc3->collider.intersects(player->collider))) {
 			npc3->moveAlongPath();
 		}
 		else {
@@ -184,6 +185,10 @@ void TestGame::update() {
 		}*/
 
 		if (npc->getCollider().intersects(player->getCollider())) {
+			state = LOSE;
+			Mix_PlayChannel(-1, aiCollide, 0);
+		}
+		if (npc2->getCollider().intersects(player->getCollider())) {
 			state = LOSE;
 			Mix_PlayChannel(-1, aiCollide, 0);
 		}
@@ -200,7 +205,7 @@ void TestGame::render() {
 	delete bg;
 
 	gfx->drawTexture(npc->getTexture(), NULL, npc->getDisplay());
-	//gfx->drawTexture(npc2->texture, NULL, npc2->display);
+	gfx->drawTexture(npc2->getTexture(), NULL, npc2->getDisplay());
 	//gfx->drawTexture(npc3->texture, NULL, npc3->display);
 
 	gfx->drawTexture(player->getTexture(), NULL, player->getDisplay());

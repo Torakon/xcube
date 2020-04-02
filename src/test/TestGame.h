@@ -14,7 +14,7 @@ class TestGame : public AbstractGame {
 	private:
 		Entity * player;
 		Entity * npc;
-		//Entity * npc2;
+		Entity * npc2;
 		//Entity * npc3;
 
 		SDL_Texture * imgWall;
