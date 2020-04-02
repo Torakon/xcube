@@ -62,6 +62,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 			}
 		}
 	}
+
 	keys = points.size();
 	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, entityTexture);
 	npc->setSight(10);
