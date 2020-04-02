@@ -68,7 +68,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD) etc.
 	player = new Entity(1, 1, tileSize-1, tileSize-1, true, entityTexture);
 	npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
-	npc2->setSight(20);
+	npc2->setSight(10);
 
 	/*npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
 	npc2->setSight(10);
@@ -171,7 +171,7 @@ void TestGame::update() {
 			ai->givePath(npc, player);
 		}
 
-		if ((npc2->getPathProgress() < 1) && (!npc2->getCollider().intersects(player->getCollider()))) {
+		if ((npc2->getPathProgress() < 0.4) && (!npc2->getCollider().intersects(player->getCollider()))) {
 			npc2->moveAlongPath();
 		}
 		else {

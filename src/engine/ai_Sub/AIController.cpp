@@ -86,15 +86,22 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 	int destX = dest->getX() / tileSize;
 	int destY = dest->getY() / tileSize;
 
+	path.clear();
 	//basic 'line of sight' currently does not take walls into account
 	bool sighted = false, complete = false;
-	if (Rect((seekerX * tileSize) - (sight * tileSize), (seekerY * tileSize) - (sight * tileSize),
-		(sight * 2) * tileSize, (sight * 2) * tileSize).intersects(dest->getCollider())) {
-		sighted = true;
+	if (sight > 0) {
+		if (Rect((seekerX * tileSize) - (sight * tileSize), (seekerY * tileSize) - (sight * tileSize),
+			(sight * 2) * tileSize, (sight * 2) * tileSize).intersects(dest->getCollider())) {
+			sighted = true;
+		}
+	}
+	else { 
+		sighted = true; 
 	}
 
 	//if destination entity is in sight then chase otherwise, 'patrol'
 	if (sighted) {
+		sighted = false;
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ destX, destY }, walkable, 0);
 	}
 	else if (seeker->getPatrol()) {

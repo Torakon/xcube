@@ -11,7 +11,7 @@ class Entity {
 		int y;
 		int h;
 		int w;
-		int sight = 1;
+		int sight = 0;
 		int nodesPassed = 0;
 		int speed = 1;
 
