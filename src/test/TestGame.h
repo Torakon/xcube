@@ -12,10 +12,17 @@ struct GameKey {
 
 class TestGame : public AbstractGame {
 	private:
+		TTF_Font * font;
+		TTF_Font * fontSmall;
+
 		Entity * player;
 		std::vector<Entity *> npcCollection;
 		Entity * npc;
 
+		Rect btnPlay = Rect(0, 0, 0, 0);
+		Rect btnDiff = Rect(0, 0, 0, 0);
+
+		SDL_Texture * entityTexture;
 		SDL_Texture * imgWall;
 		SDL_Texture * imgBacking;
 		SDL_Texture * imgCoin;
@@ -26,6 +33,9 @@ class TestGame : public AbstractGame {
 		int height;
 		int tileSize;
 		int npcCount = 3;
+		bool playHover = false;
+		bool diffHover = false;
+		bool btnBreak = true;
 
 		Vector2i velocity;
 		Vector2i npcVel;
@@ -40,7 +50,6 @@ class TestGame : public AbstractGame {
 		/* GAMEPLAY */
 		int score, keys, lives;
 		bool gameWon;
-		bool playIntent = false;
 		enum gameState { MENU, PAUSE, PLAY, WIN, LOSE };
 		gameState state = MENU;
 

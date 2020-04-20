@@ -1,9 +1,10 @@
 #include "TestGame.h"
 
 TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) {
-	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
+	font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
+	fontSmall = ResourceManager::loadFont("res/fonts/arial.ttf", 32);
 
-	SDL_Texture * entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
+	entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
 	imgWall = ResourceManager::loadTexture("res/texture/imgWall15.png", { 0,0,0xFF }); //self created
 	imgBacking = ResourceManager::loadTexture("res/texture/imgBackground510.png", { 0,0,0xFF }); //self created
 	imgCoin = ResourceManager::loadTexture("res/texture/imgCoin01.png", { 0,0,0xFF }); //self created
@@ -11,6 +12,9 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	aiCollide = ResourceManager::loadSound("res/sound/sndFailure.wav");
 	coin = ResourceManager::loadSound("res/sound/sndCoin.wav");
 	coin->volume = 10;
+
+	btnPlay = Rect(width * 0.25, height * 0.5, 100, 50);
+	btnDiff = Rect(width * 0.5, height * 0.5, 150, 50);
 
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
@@ -33,20 +37,6 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 
 	player = new Entity(1, 1, tileSize - 1, tileSize - 1, true, entityTexture);
 
-	//NPC generation
-	for (int i = 0; i < npcCount; i++) {
-		int xCord = getRandom(0, width / tileSize);
-		int yCord = getRandom(0, height / tileSize);
-		if (ai->checkPossible(Point2{ player->getX() / tileSize, player->getY() / tileSize }, Point2{ xCord, yCord })) {
-			npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
-			npc->setSight(10);
-			npc->patrol(getRandom(0,2));
-			npcCollection.push_back(npc);
-		} else {
-			i--;
-		}
-	}
-
 	for (int i = 0; i < keys; i++) {
 		int xCord = getRandom(0, (width / tileSize));
 		int yCord = getRandom(0, (height / tileSize));
@@ -65,14 +55,13 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 
 TestGame::~TestGame() {
 	delete gen;
-	delete npc;
 	delete player;
 
 	npcCollection.clear();
 }
 
 void TestGame::handleKeyEvents() {
-	int speed = 3;
+	int speed = 2;
 
 	if (eventSystem->isPressed(Key::W)) {
 		velocity.y = -speed;
@@ -92,15 +81,11 @@ void TestGame::handleKeyEvents() {
 
 	if (eventSystem->isPressed(Key::P)) {
 		if (state == PLAY) {
-			playIntent = false;
 			state = PAUSE;
 		}
 	}
 
 	if (eventSystem->isPressed(Key::ENTER)) {
-		if (!playIntent) {
-			playIntent = true;
-		}
 		if (state == LOSE) {
 			state = PLAY;
 			score -= 50;
@@ -110,9 +95,54 @@ void TestGame::handleKeyEvents() {
 
 void TestGame::update() {
 	if (state != PLAY) {
-		if (playIntent) { state = PLAY; }
-	}
-	else {
+		if (state == MENU) {
+			if ((eventSystem->getMousePos().x > btnPlay.x) && (eventSystem->getMousePos().x < btnPlay.x + btnPlay.w) && (eventSystem->getMousePos().y > btnPlay.y) && (eventSystem->getMousePos().y < btnPlay.y + btnPlay.h)) {
+				if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
+					state = PLAY;
+					btnBreak = false;
+					//NPC generation
+					for (int i = 0; i < npcCount; i++) {
+						int xCord = getRandom(0, width / tileSize);
+						int yCord = getRandom(0, height / tileSize);
+						if (ai->checkPossible(Point2{ xCord, yCord }, Point2{ xCord, yCord })) {
+							npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
+							npc->setSight(10);
+							npc->patrol(getRandom(0, 2));
+							npcCollection.push_back(npc);
+							std::cout << "NPC " << i+1 << " Spawned at " << xCord << " " << yCord << std::endl;
+						}
+						else {
+							i--;
+						}
+					}
+				} else {
+					if (!eventSystem->isPressed(BTN_LEFT)) {
+						btnBreak = true;
+					}
+					playHover = true;
+				}
+			} else {
+				playHover = false;
+			}
+			if ((eventSystem->getMousePos().x > btnDiff.x) && (eventSystem->getMousePos().x < btnDiff.x + btnDiff.w) && (eventSystem->getMousePos().y > btnDiff.y) && (eventSystem->getMousePos().y < btnDiff.y + btnDiff.h)) {
+				if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
+					btnBreak = false;
+					if (npcCount != 7) {
+						npcCount += 2;
+					} else {
+						npcCount = 3;
+					}
+				} else {
+					if (!eventSystem->isPressed(BTN_LEFT)) {
+						btnBreak = true;
+					}
+					diffHover = true;
+				}
+			} else {
+				diffHover = false;
+			}
+		}
+	} else {
 		player->moveX(velocity.x);
 
 		for (auto block : wall) {
@@ -212,21 +242,19 @@ void TestGame::renderUI() {
 	switch (state) {
 	case WIN :
 		gfx->drawText("YOU FINISHED", 250, 500);
-		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
-		playIntent = false;
 		break;
 	case LOSE : 
 		gfx->drawText("YOU LOSE", 250, 500);
 		player->setXY(Point2{ 0, 0 });
 		npc->setXY(Point2{ width-tileSize, 0 });
 		npc->clearPath();
-		playIntent = false;
 		break;
 	case PAUSE :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
 		gfx->setDrawColor(SDL_COLOR_WHITE);
 		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
+		gfx->useFont(fontSmall);
 		gfx->drawText("Press Enter to RESUME", width*0.25, height*0.5);
 		break;
 	case PLAY :
@@ -236,10 +264,36 @@ void TestGame::renderUI() {
 	case MENU :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
+		if (playHover) {
+			gfx->setDrawColor(SDL_COLOR_GRAY);
+			gfx->fillRect(btnPlay.x, btnPlay.y, btnPlay.w, btnPlay.h);
+		}
+		if (diffHover) {
+			gfx->setDrawColor(SDL_COLOR_GRAY);
+			gfx->fillRect(btnDiff.x, btnDiff.y, btnDiff.w, btnDiff.h);
+		}
 		gfx->setDrawColor(SDL_COLOR_WHITE);
-		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
+		gfx->drawText("Are You Ready?", width * 0.25, height * 0.25);
+		gfx->drawRect(btnPlay);
+		gfx->drawRect(btnDiff);
+		gfx->useFont(fontSmall);
+		gfx->drawText("Play", width * 0.25, height * 0.5);
+		switch (npcCount) {
+		case 3 :
+			gfx->drawText("EASY", width * 0.5, height * 0.5);
+			break;
+		case 5 :
+			gfx->drawText("MEDIUM", width * 0.5, height * 0.5);
+			break;
+		case 7 :
+			gfx->drawText("HARD", width * 0.5, height * 0.5);
+			break;
+		default:
+			break;
+		}
 		break;
 	default :
 		break;
 	}
+	gfx->useFont(font);
 }
