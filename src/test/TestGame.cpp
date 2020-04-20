@@ -24,67 +24,51 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 			}
 		}
 	}
-
+	ai->addMap(tileSize, width, height, wall);
 	//world bounds
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width+tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height+tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width+tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height+tileSize)));
 
-	ai->addMap(tileSize, width, height, wall);
+	player = new Entity(1, 1, tileSize - 1, tileSize - 1, true, entityTexture);
 
-	int dist = tileSize;
-
-	for (int i = 0; i < gen->y; ++i) {
-
-		int y = i * dist;
-
-		for (int j = 0; j < gen->x; ++j) {
-
-			int x = j * dist;
-
-			if (keys > 0 && getRandom(0, 200) <= 1) {
-				bool check = false;
-				if (ai->checkPossible(Point2{ (width/2)/dist, (height/2)/dist }, Point2{ j , i })) { //checks for valid path to key --make faster, cut corners
-					check = true;
-				}
-				/*if (block->contains(Point2(j*dist + dist / 2, i*dist + dist / 2))) {
-					check = true;
-					break;
-				}*/
-				if (check == true) {
-					std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); //maybe pathfind to keys, if cannot pathfind, move key? some keys are currently spawning blocked off on all sides
-					k->alive = true;											//maybe move demo goal away from 'keys' concept
-					k->pos = Point2(j*dist + dist / 2, i*dist + dist / 2);
-					points.push_back(k);
-					keys--;
-				}
-			}
+	//NPC generation
+	for (int i = 0; i < npcCount; i++) {
+		int xCord = getRandom(0, width / tileSize);
+		int yCord = getRandom(0, height / tileSize);
+		if (ai->checkPossible(Point2{ player->getX() / tileSize, player->getY() / tileSize }, Point2{ xCord, yCord })) {
+			npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
+			npc->setSight(10);
+			npc->patrol(getRandom(0,2));
+			npcCollection.push_back(npc);
+		} else {
+			i--;
 		}
 	}
 
+	for (int i = 0; i < keys; i++) {
+		int xCord = getRandom(0, (width / tileSize));
+		int yCord = getRandom(0, (height / tileSize));
+		if (ai->checkPossible(Point2{ player->getX() / tileSize, player->getY() / tileSize }, Point2{ xCord , yCord })) {
+			std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); 
+			k->alive = true;
+			k->pos = Point2(xCord*tileSize + tileSize / 2, yCord*tileSize + tileSize / 2);
+			points.push_back(k);
+			keys--;
+		} else {
+			i--;
+		}
+	}
 	keys = points.size();
-	npc = new Entity(271, 1, tileSize-1, tileSize-1, true, entityTexture);
-	npc->setSight(10);
-	npc->patrol(true); //maybe change to addBehaviour, eg npc->addBehaviour(R_PATROL), npc->addBehaviour(GUARD) etc.
-	player = new Entity(1, 1, tileSize-1, tileSize-1, true, entityTexture);
-	npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
-	npc2->setSight(10);
-
-	/*npc2 = new Entity(1, 271, tileSize - 1, tileSize - 1, true, entityTexture);
-	npc2->setSight(10);
-	npc2->patrol(true); 
-	npc3 = new Entity(271, 271, tileSize - 1, tileSize - 1, true, entityTexture);
-	npc3->setSight(10);
-	npc3->patrol(true); */
 }
 
 TestGame::~TestGame() {
 	delete gen;
 	delete npc;
-	delete npc2;
-	//delete npc3;
 	delete player;
+
+	npcCollection.clear();
 }
 
 void TestGame::handleKeyEvents() {
@@ -114,8 +98,12 @@ void TestGame::handleKeyEvents() {
 	}
 
 	if (eventSystem->isPressed(Key::ENTER)) {
-		if (!playIntent) { 
-			playIntent = true; 
+		if (!playIntent) {
+			playIntent = true;
+		}
+		if (state == LOSE) {
+			state = PLAY;
+			score -= 50;
 		}
 	}
 }
@@ -133,7 +121,7 @@ void TestGame::update() {
 				break;
 			}
 		}
-		for (auto block : wall) { //currently ai just merges with player
+		for (auto block : wall) {
 			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
 				npc->moveX(-npcVel.x);
 				break;
@@ -148,7 +136,7 @@ void TestGame::update() {
 				break;
 			}
 		}
-		for (auto block : wall) { //currently ai just merges with player
+		for (auto block : wall) {
 			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
 				npc->moveY(-npcVel.y);
 				break;
@@ -165,35 +153,18 @@ void TestGame::update() {
 		}
 
 		velocity = Vector2i(0, 0);
-		if ((npc->getPathProgress() < 1) && (!npc->getCollider().intersects(player->getCollider()))) {
-			npc->moveAlongPath();
+		for (Entity* x : npcCollection) {
+			if ((x->getPathProgress() < 1) && (!x->getCollider().intersects(player->getCollider()))) {
+				x->moveAlongPath();
+			}
+			else {
+				ai->givePath(x, player);
+			}
+			if (x->getCollider().intersects(player->getCollider())) {
+				state = LOSE;
+				Mix_PlayChannel(-1, aiCollide, 0);
+			}
 		}
-		else {
-			ai->givePath(npc, player);
-		}
-
-		if ((npc2->getPathProgress() < 0.4) && (!npc2->getCollider().intersects(player->getCollider()))) {
-			npc2->moveAlongPath();
-		}
-		else {
-			ai->givePath(npc2, player);
-		}
-		/*if ((npc3->getPathProgress() < 1) && (!npc3->collider.intersects(player->collider))) {
-			npc3->moveAlongPath();
-		}
-		else {
-			ai->givePath(npc3, player);
-		}*/
-
-		if (npc->getCollider().intersects(player->getCollider())) {
-			state = LOSE;
-			Mix_PlayChannel(-1, aiCollide, 0);
-		}
-		if (npc2->getCollider().intersects(player->getCollider())) {
-			state = LOSE;
-			Mix_PlayChannel(-1, aiCollide, 0);
-		}
-
 		if (keys == 0) {
 			state = WIN;
 		}
@@ -204,10 +175,10 @@ void TestGame::render() {
 	SDL_Rect * bg = new SDL_Rect{ 0,0,width,height };
 	gfx->drawTexture(imgBacking, NULL, bg);
 	delete bg;
-
-	gfx->drawTexture(npc->getTexture(), NULL, npc->getDisplay());
-	gfx->drawTexture(npc2->getTexture(), NULL, npc2->getDisplay());
-	//gfx->drawTexture(npc3->texture, NULL, npc3->display);
+	
+	for (Entity * x : npcCollection) {
+		gfx->drawTexture(x->getTexture(), NULL, x->getDisplay());
+	}
 
 	gfx->drawTexture(player->getTexture(), NULL, player->getDisplay());
 
@@ -240,7 +211,7 @@ void TestGame::renderUI() {
 
 	switch (state) {
 	case WIN :
-		gfx->drawText("YOU WON", 250, 500);
+		gfx->drawText("YOU FINISHED", 250, 500);
 		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
 		playIntent = false;
 		break;
@@ -249,7 +220,6 @@ void TestGame::renderUI() {
 		player->setXY(Point2{ 0, 0 });
 		npc->setXY(Point2{ width-tileSize, 0 });
 		npc->clearPath();
-		score -= 50;
 		playIntent = false;
 		break;
 	case PAUSE :
@@ -257,11 +227,18 @@ void TestGame::renderUI() {
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
 		gfx->setDrawColor(SDL_COLOR_WHITE);
 		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
-		gfx->drawText("Press Enter to Play", width*0.25, height*0.5);
+		gfx->drawText("Press Enter to RESUME", width*0.25, height*0.5);
 		break;
 	case PLAY :
 		gfx->setDrawColor(SDL_COLOR_AQUA);
 		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
+		break;
+	case MENU :
+		gfx->setDrawColor(SDL_COLOR_BLACK);
+		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
+		gfx->setDrawColor(SDL_COLOR_WHITE);
+		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
+		break;
 	default :
 		break;
 	}

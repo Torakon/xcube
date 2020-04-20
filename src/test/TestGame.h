@@ -13,9 +13,8 @@ struct GameKey {
 class TestGame : public AbstractGame {
 	private:
 		Entity * player;
+		std::vector<Entity *> npcCollection;
 		Entity * npc;
-		Entity * npc2;
-		//Entity * npc3;
 
 		SDL_Texture * imgWall;
 		SDL_Texture * imgBacking;
@@ -26,6 +25,7 @@ class TestGame : public AbstractGame {
 		int width;
 		int height;
 		int tileSize;
+		int npcCount = 3;
 
 		Vector2i velocity;
 		Vector2i npcVel;
@@ -41,8 +41,8 @@ class TestGame : public AbstractGame {
 		int score, keys, lives;
 		bool gameWon;
 		bool playIntent = false;
-		enum gameState { PAUSE, PLAY, WIN, LOSE };
-		gameState state = PAUSE;
+		enum gameState { MENU, PAUSE, PLAY, WIN, LOSE };
+		gameState state = MENU;
 
 		void handleKeyEvents();
 		void update();
