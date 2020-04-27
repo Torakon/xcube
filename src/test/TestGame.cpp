@@ -96,51 +96,7 @@ void TestGame::handleKeyEvents() {
 void TestGame::update() {
 	if (state != PLAY) {
 		if (state == MENU) {
-			if ((eventSystem->getMousePos().x > btnPlay.x) && (eventSystem->getMousePos().x < btnPlay.x + btnPlay.w) && (eventSystem->getMousePos().y > btnPlay.y) && (eventSystem->getMousePos().y < btnPlay.y + btnPlay.h)) {
-				if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
-					state = PLAY;
-					btnBreak = false;
-					//NPC generation
-					for (int i = 0; i < npcCount; i++) {
-						int xCord = getRandom(0, width / tileSize);
-						int yCord = getRandom(0, height / tileSize);
-						if (ai->checkPossible(Point2{ xCord, yCord }, Point2{ xCord, yCord })) {
-							npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
-							npc->setSight(10);
-							npc->patrol(getRandom(0, 2));
-							npcCollection.push_back(npc);
-							std::cout << "NPC " << i+1 << " Spawned at " << xCord << " " << yCord << std::endl;
-						}
-						else {
-							i--;
-						}
-					}
-				} else {
-					if (!eventSystem->isPressed(BTN_LEFT)) {
-						btnBreak = true;
-					}
-					playHover = true;
-				}
-			} else {
-				playHover = false;
-			}
-			if ((eventSystem->getMousePos().x > btnDiff.x) && (eventSystem->getMousePos().x < btnDiff.x + btnDiff.w) && (eventSystem->getMousePos().y > btnDiff.y) && (eventSystem->getMousePos().y < btnDiff.y + btnDiff.h)) {
-				if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
-					btnBreak = false;
-					if (npcCount != 7) {
-						npcCount += 2;
-					} else {
-						npcCount = 3;
-					}
-				} else {
-					if (!eventSystem->isPressed(BTN_LEFT)) {
-						btnBreak = true;
-					}
-					diffHover = true;
-				}
-			} else {
-				diffHover = false;
-			}
+			handleMenu();
 		}
 	} else {
 		player->moveX(velocity.x);
@@ -296,4 +252,57 @@ void TestGame::renderUI() {
 		break;
 	}
 	gfx->useFont(font);
+}
+
+void TestGame::handleMenu() {
+	if ((eventSystem->getMousePos().x > btnPlay.x) && (eventSystem->getMousePos().x < btnPlay.x + btnPlay.w) && (eventSystem->getMousePos().y > btnPlay.y) && (eventSystem->getMousePos().y < btnPlay.y + btnPlay.h)) {
+		if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
+			state = PLAY;
+			btnBreak = false;
+			//NPC generation
+			for (int i = 0; i < npcCount; i++) {
+				int xCord = getRandom(0, width / tileSize);
+				int yCord = getRandom(0, height / tileSize);
+				if (ai->checkPossible(Point2{ xCord, yCord }, Point2{ xCord, yCord })) {
+					npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
+					npc->setSight(10);
+					npc->patrol(getRandom(0, 2));
+					npcCollection.push_back(npc);
+					std::cout << "NPC " << i + 1 << " Spawned at " << xCord << " " << yCord << std::endl;
+				}
+				else {
+					i--;
+				}
+			}
+		}
+		else {
+			if (!eventSystem->isPressed(BTN_LEFT)) {
+				btnBreak = true;
+			}
+			playHover = true;
+		}
+	}
+	else {
+		playHover = false;
+	}
+	if ((eventSystem->getMousePos().x > btnDiff.x) && (eventSystem->getMousePos().x < btnDiff.x + btnDiff.w) && (eventSystem->getMousePos().y > btnDiff.y) && (eventSystem->getMousePos().y < btnDiff.y + btnDiff.h)) {
+		if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
+			btnBreak = false;
+			if (npcCount != 7) {
+				npcCount += 2;
+			}
+			else {
+				npcCount = 3;
+			}
+		}
+		else {
+			if (!eventSystem->isPressed(BTN_LEFT)) {
+				btnBreak = true;
+			}
+			diffHover = true;
+		}
+	}
+	else {
+		diffHover = false;
+	}
 }

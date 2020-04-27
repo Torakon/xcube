@@ -57,6 +57,7 @@ class TestGame : public AbstractGame {
 		void update();
 		void render();
 		void renderUI();
+		void handleMenu();
 	public:
 		TestGame();
 		~TestGame();
