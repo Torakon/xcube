@@ -13,7 +13,10 @@ struct GameKey {
 class TestGame : public AbstractGame {
 	private:
 		TTF_Font * font;
+		TTF_Font * amaticFont;
 		TTF_Font * fontSmall;
+
+		SDL_Rect * bg;
 
 		Entity * player;
 		std::vector<Entity *> npcCollection;
@@ -36,6 +39,7 @@ class TestGame : public AbstractGame {
 		bool playHover = false;
 		bool diffHover = false;
 		bool btnBreak = true;
+		bool resetBreak = false;
 
 		Vector2i velocity;
 		Vector2i npcVel;
@@ -48,9 +52,9 @@ class TestGame : public AbstractGame {
 		std::vector<std::shared_ptr<GameKey>> points;
 
 		/* GAMEPLAY */
-		int score, keys, lives;
+		int score, keys, lives, scoreInc;
 		bool gameWon;
-		enum gameState { MENU, PAUSE, PLAY, WIN, LOSE };
+		enum gameState { MENU, PAUSE, PLAY, WIN, LOSE, LIFELOSS };
 		gameState state = MENU;
 
 		void handleKeyEvents();
@@ -58,6 +62,7 @@ class TestGame : public AbstractGame {
 		void render();
 		void renderUI();
 		void handleMenu();
+		void generateLevel();
 	public:
 		TestGame();
 		~TestGame();

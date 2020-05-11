@@ -1,8 +1,10 @@
 #include "TestGame.h"
 
 TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) {
-	font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
+	amaticFont = ResourceManager::loadFont("res/fonts/AmaticSC-Regular.ttf", 72);
 	fontSmall = ResourceManager::loadFont("res/fonts/arial.ttf", 32);
+
+	bg = new SDL_Rect{ 0,0,width,height };
 
 	entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
 	imgWall = ResourceManager::loadTexture("res/texture/imgWall15.png", { 0,0,0xFF }); //self created
@@ -16,41 +18,12 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	btnPlay = Rect(width * 0.25, height * 0.5, 100, 50);
 	btnDiff = Rect(width * 0.5, height * 0.5, 150, 50);
 
-	gfx->useFont(font);
+	gfx->useFont(amaticFont);
 	gfx->setVerticalSync(true);
-
-	gen = new MazeGenerator(width/tileSize, height/tileSize);
-	gen->generateMaze(0, 0);
-	for (int i = 0; i < height / tileSize; i++) {
-		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning different texture.
-			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { //at the very least look into making the aesthetic more dynamic
-				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
-			}
-		}
-	}
-	ai->addMap(tileSize, width, height, wall);
-	//world bounds
-	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width+tileSize, tileSize)));
-	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height+tileSize)));
-	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width+tileSize, tileSize)));
-	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height+tileSize)));
 
 	player = new Entity(1, 1, tileSize - 1, tileSize - 1, true, entityTexture);
 
-	for (int i = 0; i < keys; i++) {
-		int xCord = getRandom(0, (width / tileSize));
-		int yCord = getRandom(0, (height / tileSize));
-		if (ai->checkPossible(Point2{ player->getX() / tileSize, player->getY() / tileSize }, Point2{ xCord , yCord })) {
-			std::shared_ptr<GameKey> k = std::make_shared<GameKey>(); 
-			k->alive = true;
-			k->pos = Point2(xCord*tileSize + tileSize / 2, yCord*tileSize + tileSize / 2);
-			points.push_back(k);
-			keys--;
-		} else {
-			i--;
-		}
-	}
-	keys = points.size();
+	generateLevel();
 }
 
 TestGame::~TestGame() {
@@ -85,11 +58,26 @@ void TestGame::handleKeyEvents() {
 		}
 	}
 
-	if (eventSystem->isPressed(Key::ENTER)) {
+	if (eventSystem->isPressed(Key::ENTER) && !resetBreak) {
+		resetBreak = true;
 		if (state == LOSE) {
-			state = PLAY;
-			score -= 50;
+			score = 0;
 		}
+		if (state == LOSE || state == LIFELOSS) {
+			state = PLAY;
+			if (score >= 150) {
+				score -= scoreInc * 150;
+			}
+		}
+		if (state == LOSE || state == WIN) {
+			wall.clear();
+			generateLevel();
+		}
+	}
+
+	// Allow enter to be 'registered' as pressed again
+	if (!eventSystem->isPressed(Key::ENTER)) {
+		resetBreak = false;
 	}
 }
 
@@ -132,7 +120,7 @@ void TestGame::update() {
 		for (auto key : points) {
 			if (key->alive && player->getCollider().contains(key->pos)) {
 				Mix_PlayChannel(-1, coin, 0);
-				score += 200;
+				score += scoreInc * 200;
 				key->alive = false;
 				keys--;
 			}
@@ -140,14 +128,20 @@ void TestGame::update() {
 
 		velocity = Vector2i(0, 0);
 		for (Entity* x : npcCollection) {
-			if ((x->getPathProgress() < 1) && (!x->getCollider().intersects(player->getCollider()))) {
+			if ((x->getPathProgress() < 0.5) && (!x->getCollider().intersects(player->getCollider()))) {
 				x->moveAlongPath();
 			}
 			else {
 				ai->givePath(x, player);
 			}
 			if (x->getCollider().intersects(player->getCollider())) {
-				state = LOSE;
+				if (lives != 1) {
+					state = LIFELOSS;
+					lives--;
+				}
+				else {
+					state = LOSE;
+				}
 				Mix_PlayChannel(-1, aiCollide, 0);
 			}
 		}
@@ -155,12 +149,16 @@ void TestGame::update() {
 			state = WIN;
 		}
 	}
+	if (state == LIFELOSS || state == LOSE) {
+		for (Entity* x : npcCollection) {
+			x->clearPath();
+			x->setXY(x->getInitLoc());
+		}
+	}
 }
 
 void TestGame::render() {
-	SDL_Rect * bg = new SDL_Rect{ 0,0,width,height };
 	gfx->drawTexture(imgBacking, NULL, bg);
-	delete bg;
 	
 	for (Entity * x : npcCollection) {
 		gfx->drawTexture(x->getTexture(), NULL, x->getDisplay());
@@ -194,24 +192,32 @@ void TestGame::render() {
 void TestGame::renderUI() {
 	gfx->setDrawColor(SDL_COLOR_AQUA);
 	std::string scoreStr = std::to_string(score);
+	std::string livesStr = std::to_string(lives);
 
 	switch (state) {
 	case WIN :
-		gfx->drawText("YOU FINISHED", 250, 500);
+		gfx->drawText("YOU FINISHED", 0, (height / 2) - 70);
+		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
 		break;
 	case LOSE : 
-		gfx->drawText("YOU LOSE", 250, 500);
+		gfx->drawText("YOU LOSE", 0, (height / 2) - 70);
+		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
+		gfx->drawText("Press Enter to RESTART", 0, height / 2);
+		lives = 3;
 		player->setXY(Point2{ 0, 0 });
-		npc->setXY(Point2{ width-tileSize, 0 });
-		npc->clearPath();
+		break;
+	case LIFELOSS:
+		gfx->drawText("LIVES: " + livesStr, 0, (height / 2) - 70);
+		gfx->drawText("Press Enter to RESUME", 0, height / 2);
+		player->setXY(Point2{ 0, 0 });
 		break;
 	case PAUSE :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
 		gfx->setDrawColor(SDL_COLOR_WHITE);
-		gfx->drawText("Are You Ready?", width*0.25, height*0.25);
+		gfx->drawText("Are You Ready?", width * 0.25, height * 0.25);
 		gfx->useFont(fontSmall);
-		gfx->drawText("Press Enter to RESUME", width*0.25, height*0.5);
+		gfx->drawText("Press Enter to RESUME", 0, height / 2);
 		break;
 	case PLAY :
 		gfx->setDrawColor(SDL_COLOR_AQUA);
@@ -237,12 +243,15 @@ void TestGame::renderUI() {
 		switch (npcCount) {
 		case 3 :
 			gfx->drawText("EASY", width * 0.5, height * 0.5);
+			scoreInc = 1;
 			break;
 		case 5 :
 			gfx->drawText("MEDIUM", width * 0.5, height * 0.5);
+			scoreInc = 2;
 			break;
 		case 7 :
-			gfx->drawText("HARD", width * 0.5, height * 0.5);
+			gfx->drawText("HARDish", width * 0.5, height * 0.5);
+			scoreInc = 3;
 			break;
 		default:
 			break;
@@ -251,10 +260,11 @@ void TestGame::renderUI() {
 	default :
 		break;
 	}
-	gfx->useFont(font);
+	gfx->useFont(amaticFont);
 }
 
 void TestGame::handleMenu() {
+	// Handle start button
 	if ((eventSystem->getMousePos().x > btnPlay.x) && (eventSystem->getMousePos().x < btnPlay.x + btnPlay.w) && (eventSystem->getMousePos().y > btnPlay.y) && (eventSystem->getMousePos().y < btnPlay.y + btnPlay.h)) {
 		if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
 			state = PLAY;
@@ -265,10 +275,14 @@ void TestGame::handleMenu() {
 				int yCord = getRandom(0, height / tileSize);
 				if (ai->checkPossible(Point2{ xCord, yCord }, Point2{ xCord, yCord })) {
 					npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
-					npc->setSight(10);
+					if (npcCount == 7) {
+						npc->setSight(25);
+					}
+					else {
+						npc->setSight(15);
+					}
 					npc->patrol(getRandom(0, 2));
 					npcCollection.push_back(npc);
-					std::cout << "NPC " << i + 1 << " Spawned at " << xCord << " " << yCord << std::endl;
 				}
 				else {
 					i--;
@@ -285,6 +299,7 @@ void TestGame::handleMenu() {
 	else {
 		playHover = false;
 	}
+	// Handle difficulty button
 	if ((eventSystem->getMousePos().x > btnDiff.x) && (eventSystem->getMousePos().x < btnDiff.x + btnDiff.w) && (eventSystem->getMousePos().y > btnDiff.y) && (eventSystem->getMousePos().y < btnDiff.y + btnDiff.h)) {
 		if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
 			btnBreak = false;
@@ -305,4 +320,38 @@ void TestGame::handleMenu() {
 	else {
 		diffHover = false;
 	}
+}
+
+void TestGame::generateLevel() {
+	gen = new MazeGenerator(width / tileSize, height / tileSize);
+	gen->generateMaze(0, 0);
+	for (int i = 0; i < height / tileSize; i++) {
+		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning different texture.
+			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { //at the very least look into making the aesthetic more dynamic
+				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
+			}
+		}
+	}
+	ai->addMap(tileSize, width, height, wall);
+	//world bounds
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width + tileSize, tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height + tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width + tileSize, tileSize)));
+	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height + tileSize)));
+
+	for (int i = 0; i < keys; i++) {
+		int xCord = getRandom(0, (width / tileSize));
+		int yCord = getRandom(0, (height / tileSize));
+		if (ai->checkPossible(Point2{ player->getX() / tileSize, player->getY() / tileSize }, Point2{ xCord , yCord })) {
+			std::shared_ptr<GameKey> k = std::make_shared<GameKey>();
+			k->alive = true;
+			k->pos = Point2(xCord*tileSize + tileSize / 2, yCord*tileSize + tileSize / 2);
+			points.push_back(k);
+			keys--;
+		}
+		else {
+			i--;
+		}
+	}
+	keys = points.size();
 }
