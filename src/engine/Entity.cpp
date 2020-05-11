@@ -1,7 +1,7 @@
 #include "Entity.h"
 
 Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * inputTexture) : x(xPos), y(yPos), h(height), w(width), collider(0, 0, 0, 0) {
-	texture = inputTexture; //can we set bounding box based on image size?
+	texture = inputTexture; 
 	display = new SDL_Rect{ x, y, h, w }; 
 	initX = x;
 	initY = x;
@@ -72,17 +72,15 @@ void Entity::setSpeed(int x) {
 }
 
 void Entity::patrol(bool yesNo) {
-	randomPatrolB = yesNo; //possibly promote to Component type and just call one method of get behaviour that returns a list of Components for access
+	randomPatrolB = yesNo; 
 }
 
-//moves entity's collider and texture display on the X axis
 void Entity::moveX(int xDif) {
 	x += xDif;
 	display->x = x;
 	collider.x = x;
 }
 
-//moves entity's collider and texture display on the Y axis
 void Entity::moveY(int yDif) {
 	y += yDif;
 	display->y = y;

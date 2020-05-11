@@ -43,10 +43,12 @@ class Node {
 
 		/**
 		 * Get Tile X coordinate
+		 * @return
 		 */
 		int getX();
 		/**
 		 * Get Tile Y coordinate
+		 * @return
 		 */
 		int getY();
 		/**
