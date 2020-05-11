@@ -7,26 +7,36 @@
 
 class AStar {
 private:
-	std::vector<std::shared_ptr<Node >> open;
-	std::vector<std::shared_ptr<Node >> close;
+	std::vector<std::shared_ptr<Node >> open;	/** Data collection storing Nodes that could be the next step in the path */
+	std::vector<std::shared_ptr<Node >> close;	/** Data collection storing Nodes that have been declared wanted */
 
-	std::shared_ptr<Node> compare;
-	std::shared_ptr<Node> bckNode;
+	std::shared_ptr<Node> compare;	/** The node currently being looked at */
+	std::shared_ptr<Node> bckNode;	/** Backtracking node to calculate path from close vector */
 
-	Node origin;
-	Node goal;
+	Node origin;	/** Node at start of search */
+	Node goal;		/** Desired Node at end of search */
 
-	std::vector<std::shared_ptr<Node >> successor;
-	std::vector<Point2> path;
-	std::vector<Point2> pathFlipped;
+	std::vector<std::shared_ptr<Node >> successor;	/** Data collection storing the Node on each edge of the current Node */
+	std::vector<Point2> path;						/** True path followable by current Entity code */
+	std::vector<Point2> pathFlipped;				/** Initial path calculated by back tracking */
 
-	int heu;
-	int dif;
-	bool depthConstraint = false;
+	int newH;						/** Heuristic, commonly known as H, estimation of distance from 'here' to goal */
+	bool depthConstraint = false;	/** Whether or not there is a limit to the amount of steps available */
 public:
 	AStar();
 
-	std::vector<Point2> AStarSearch(Point2, Point2, std::vector<std::vector<std::shared_ptr<Node> >>, int);
+	/**
+	 * The AStar search algorithm. Starts with the current Node in the open list. Switch the lowest cost Node from current node
+	 * to the close list. Add each of the edge nodes from here to open vector if not there already, making the current node the parent.
+	 * If in closed then do nothing. If already in open but as part of a longer path, change the parent to current node and 
+	 * recalculate costs. Loop until goal is added to close vector or open vector is empty. Then backtrack through close list for path.
+	 * @param start		The starting location
+	 * @param dest		The end goal location
+	 * @param mapData	Collection of nodes
+	 * @param depth		Step limitation, 0 if unlimited
+	 * @return			Data collection of Point2 coordinates
+	 */
+	std::vector<Point2> AStarSearch(Point2 start, Point2 dest, std::vector<std::vector<std::shared_ptr<Node> >> mapData, int depth);
 };
 
 #endif
