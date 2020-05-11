@@ -7,21 +7,21 @@
 
 class AStar {
 private:
-	std::vector<std::shared_ptr<Node >> open;	/** Data collection storing Nodes that could be the next step in the path */
-	std::vector<std::shared_ptr<Node >> close;	/** Data collection storing Nodes that have been declared wanted */
+	std::vector<std::shared_ptr<Node >> open;	/**< Data collection storing Nodes that could be the next step in the path */
+	std::vector<std::shared_ptr<Node >> close;	/**< Data collection storing Nodes that have been declared wanted */
 
-	std::shared_ptr<Node> compare;	/** The node currently being looked at */
-	std::shared_ptr<Node> bckNode;	/** Backtracking node to calculate path from close vector */
+	std::shared_ptr<Node> compare;	/**< The node currently being looked at */
+	std::shared_ptr<Node> bckNode;	/**< Backtracking node to calculate path from close vector */
 
-	Node origin;	/** Node at start of search */
-	Node goal;		/** Desired Node at end of search */
+	Node origin;	/**< Node at start of search */
+	Node goal;		/**< Desired Node at end of search */
 
-	std::vector<std::shared_ptr<Node >> successor;	/** Data collection storing the Node on each edge of the current Node */
-	std::vector<Point2> path;						/** True path followable by current Entity code */
-	std::vector<Point2> pathFlipped;				/** Initial path calculated by back tracking */
+	std::vector<std::shared_ptr<Node >> successor;	/**< Data collection storing the Node on each edge of the current Node */
+	std::vector<Point2> path;						/**< True path followable by current Entity code */
+	std::vector<Point2> pathFlipped;				/**< Initial path calculated by back tracking */
 
-	int newH;						/** Heuristic, commonly known as H, estimation of distance from 'here' to goal */
-	bool depthConstraint = false;	/** Whether or not there is a limit to the amount of steps available */
+	int newH;						/**< Heuristic, commonly known as H, estimation of distance from 'here' to goal */
+	bool depthConstraint = false;	/**< Whether or not there is a limit to the amount of steps available */
 public:
 	AStar();
 

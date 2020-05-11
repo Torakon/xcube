@@ -16,6 +16,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	path.clear();
 
 	mapData[start.y][start.x]->setGHCost(0, ((dest.x - start.x) ^ 2) + ((dest.y - start.y) ^ 2));
+	mapData[start.y][start.x]->addParent(nullptr);
 	open.push_back(mapData[start.y][start.x]);
 
 	// If start point not walkable, don't bother making path
@@ -34,8 +35,8 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
-		int compareY = compare->getY();
-		int compareX = compare->getX();
+		int compareY = compare->getY(); /**< Tile X location of current node */
+		int compareX = compare->getX();	/**< Tile Y location of current node */
 
 		// Get successors if walkable, in the four directions
 		if (compare->getEdge(Node::NORTH)) {
@@ -73,8 +74,8 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		
 		// Check successors
 		while (!successor.empty()) {
-			bool closeContained = false;
-			bool openContained = false;
+			bool closeContained = false;	/**< Flag if Node in close vector */
+			bool openContained = false;		/**< Flag if Node in open vector */
 			for (std::shared_ptr<Node> closeCheck : close) {
 				// If in close list do nothing
 				if (closeCheck->getID() == successor.back()->getID()) {

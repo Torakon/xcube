@@ -11,15 +11,15 @@
 
 class AIController {
 	private:
-		int tileSize;	/** Size of the tiles used in map generation */
-		int mapX;		/** Size of map along X coord */
-		int mapY;		/** Size of map along Y coord */
+		int tileSize;	/**< Size of the tiles used in map generation */
+		int mapX;		/**< Size of map along X coord */
+		int mapY;		/**< Size of map along Y coord */
 
-		std::vector<std::vector<std::shared_ptr<Node> >> walkable;	/** Data collection storing walkable and non walkable tiles */
+		std::vector<std::vector<std::shared_ptr<Node> >> walkable;	/**< Data collection storing walkable and non walkable tiles */
 
-		std::vector<Point2> path;	/** Data collection storing coords of calculated path */
+		std::vector<Point2> path;	/**< Data collection storing coords of calculated path */
 
-		AStar search;	/** Reference to AStar algorithm */
+		AStar search;	/**< Reference to AStar algorithm */
 
 	public:
 		AIController();

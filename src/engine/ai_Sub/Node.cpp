@@ -1,7 +1,6 @@
 #include "Node.h"
 
 Node::Node(int xTile, int yTile, int distFrom, int distTo) : tilX(xTile), tilY(yTile), disG(distFrom), heuH(distTo){
-	id = "";
 	id.append(std::to_string(tilX));
 	id.append(std::to_string(tilY));
 }

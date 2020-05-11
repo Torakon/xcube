@@ -31,7 +31,7 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 	bool wCheck = true;
 	for (int i = 0; i < mapX; i++) {
 		for (int j = 0; j < mapY; j++) {
-			Node push = Node(j, i, tileSize, tileSize); /** A Node generated based on map coordinates to be pushed onto walkable */
+			Node push = Node(j, i, 0, 0); /**< A Node generated based on map coordinates to be pushed onto walkable */
 
 			wCheck = true;
 			for (auto block : map) {
@@ -73,15 +73,15 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 }
 
 void AIController::givePath(Entity* seeker, Entity* dest) {
-	int sight = seeker->getSight(); /** The sight radius of seeker Entity */
-	int seekerX = seeker->getX() / tileSize; /** Tile location X of seeker Entity */
-	int seekerY = seeker->getY() / tileSize; /** Tile location Y of seeker Entity */
-	int destX = dest->getX() / tileSize;	/** Tile location X of destination Entity */
-	int destY = dest->getY() / tileSize;	/** Tile location Y of destination Entity */
+	int sight = seeker->getSight(); /**< The sight radius of seeker Entity */
+	int seekerX = seeker->getX() / tileSize; /**< Tile location X of seeker Entity */
+	int seekerY = seeker->getY() / tileSize; /**< Tile location Y of seeker Entity */
+	int destX = dest->getX() / tileSize;	/**< Tile location X of destination Entity */
+	int destY = dest->getY() / tileSize;	/**< Tile location Y of destination Entity */
 
 	path.clear();
 	// If second entity is in range
-	bool sighted = false;	/** Flag to show if Entity is in range */
+	bool sighted = false;	/**< Flag to show if Entity is in range */
 	if (sight > 0) {
 		if (Rect((seekerX * tileSize) - (sight * tileSize), (seekerY * tileSize) - (sight * tileSize),
 			(sight * 2) * tileSize, (sight * 2) * tileSize).intersects(dest->getCollider())) {
@@ -98,8 +98,8 @@ void AIController::givePath(Entity* seeker, Entity* dest) {
 		path = search.AStarSearch(Point2{ seekerX, seekerY }, Point2{ destX, destY }, walkable, 0);
 	}
 	else if (seeker->getPatrol()) {
-		int randomX = std::rand() % (sight + 1) - (sight / 2);	/** Random point X within sight range of Entity */
-		int randomY = std::rand() % (sight + 1) - (sight / 2);	/** Random point Y within sight range of Entity */
+		int randomX = std::rand() % (sight + 1) - (sight / 2);	/**< Random point X within sight range of Entity */
+		int randomY = std::rand() % (sight + 1) - (sight / 2);	/**< Random point Y within sight range of Entity */
 		if (randomX + seekerX < 0) {
 			randomX *= -1;
 		}
@@ -135,9 +135,9 @@ void AIController::givePath(Entity* seeker, Point2 dest) {
 }
 
 bool AIController::checkPossible(Point2 begin, Point2 key) {
-	std::vector<Point2> check = search.AStarSearch(begin, key, walkable, 0); /** Data collection storing coords of calculated path */
+	std::vector<Point2> check = search.AStarSearch(begin, key, walkable, 0); /**< Data collection storing coords of calculated path */
 	if (!check.empty()) {
-		Point2 point = check[check.size() - 1]; /** Last coord in provided path if not empty */
+		Point2 point = check[check.size() - 1]; /**< Last coord in provided path if not empty */
 		if (point.x == key.x && point.y == key.y) {
 			return true;
 		}
