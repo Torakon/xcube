@@ -7,7 +7,7 @@
 
 class Node {
 	private:
-		std::string id;
+		std::string id = "null";
 		std::shared_ptr<Node> parentNode;
 
 		int weight;
