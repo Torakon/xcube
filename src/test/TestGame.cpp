@@ -24,6 +24,7 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	player = new Entity(1, 1, tileSize - 1, tileSize - 1, true, entityTexture);
 
 	generateLevel();
+	ai->DEBUG_ShowMap();
 }
 
 TestGame::~TestGame() {
@@ -63,15 +64,18 @@ void TestGame::handleKeyEvents() {
 		if (state == LOSE) {
 			score = 0;
 		}
-		if (state == LOSE || state == LIFELOSS) {
+		if (state == LOSE || state == LIFELOSS || WIN) {
+			player->setXY(Point2{ 0, 0 });
 			state = PLAY;
-			if (score >= 150) {
-				score -= scoreInc * 150;
+			if (state == WIN) {
+				wall.clear();
+				generateLevel();
 			}
-		}
-		if (state == LOSE || state == WIN) {
-			wall.clear();
-			generateLevel();
+			else {
+				if (score >= 150) {
+					score -= scoreInc * 150;
+				}
+			}
 		}
 	}
 
@@ -149,7 +153,7 @@ void TestGame::update() {
 			state = WIN;
 		}
 	}
-	if (state == LIFELOSS || state == LOSE) {
+	if (state == LIFELOSS || state == LOSE || state == WIN) {
 		for (Entity* x : npcCollection) {
 			x->clearPath();
 			x->setXY(x->getInitLoc());
@@ -204,12 +208,10 @@ void TestGame::renderUI() {
 		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
 		gfx->drawText("Press Enter to RESTART", 0, height / 2);
 		lives = 3;
-		player->setXY(Point2{ 0, 0 });
 		break;
 	case LIFELOSS:
 		gfx->drawText("LIVES: " + livesStr, 0, (height / 2) - 70);
 		gfx->drawText("Press Enter to RESUME", 0, height / 2);
-		player->setXY(Point2{ 0, 0 });
 		break;
 	case PAUSE :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
@@ -323,6 +325,8 @@ void TestGame::handleMenu() {
 }
 
 void TestGame::generateLevel() {
+	keys = 10;
+	points.clear();
 	gen = new MazeGenerator(width / tileSize, height / tileSize);
 	gen->generateMaze(0, 0);
 	for (int i = 0; i < height / tileSize; i++) {
