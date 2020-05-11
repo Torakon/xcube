@@ -3,6 +3,8 @@
 Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Texture * inputTexture) : x(xPos), y(yPos), h(height), w(width), collider(0, 0, 0, 0) {
 	texture = inputTexture; //can we set bounding box based on image size?
 	display = new SDL_Rect{ x, y, h, w }; 
+	initX = x;
+	initY = x;
 
 	if (bounding) {
 		collider = Rect(x, y, h, w);
@@ -125,4 +127,8 @@ void Entity::aiMovePath(std::vector<Point2> path) {
 
 void Entity::clearPath() {
 	pathCheck.clear();
+}
+
+Point2 Entity::getInitLoc() {
+	return Point2{ initX, initY };
 }

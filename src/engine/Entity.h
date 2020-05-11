@@ -14,6 +14,8 @@ class Entity {
 		int sight = 0;
 		int nodesPassed = 0;
 		int speed = 1;
+		int initX = 0;
+		int initY = 0;
 
 		Rect collider;
 		SDL_Texture * texture;
@@ -43,6 +45,7 @@ class Entity {
 		//functional
 		void moveX(int);
 		void moveY(int);
+		Point2 getInitLoc();
 
 		void moveAlongPath();
 		void aiMovePath(std::vector<Point2>);
