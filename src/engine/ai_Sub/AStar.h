@@ -18,6 +18,7 @@ private:
 
 	std::vector<std::shared_ptr<Node >> successor;
 	std::vector<Point2> path;
+	std::vector<Point2> pathFlipped;
 
 	int heu;
 	int dif;

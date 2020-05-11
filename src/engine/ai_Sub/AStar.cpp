@@ -35,64 +35,64 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
-		int cY = compare->getY();
-		int cX = compare->getX();
+		int compareY = compare->getY();
+		int compareX = compare->getX();
 
 		//get successors if walkable in the four directions
 		if (compare->getEdge(Node::NORTH)) {
-			dif = ((dest.x - cX) ^ 2) + ((dest.y - (cY - 1)) ^ 2); //calculate hue
+			dif = ((dest.x - compareX) ^ 2) + ((dest.y - (compareY - 1)) ^ 2); //calculate hue
 			if (dif < 0) {
 				dif *= -1; //absolute value
 			}
-			mapData[cY - 1][cX]->setGHCost(compare->getGVal() + 1, dif);
-			successor.push_back(mapData[cY - 1][cX]);
+			mapData[compareY - 1][compareX]->setGHCost(compare->getGVal() + 1, dif);
+			successor.push_back(mapData[compareY - 1][compareX]);
 		}
 		if (compare->getEdge(Node::SOUTH)) {
-			dif = ((dest.x - cX) ^ 2) + ((dest.y - (cY + 1)) ^ 2);
+			dif = ((dest.x - compareX) ^ 2) + ((dest.y - (compareY + 1)) ^ 2);
 			if (dif < 0) {
 				dif *= -1;
 			}
-			mapData[cY + 1][cX]->setGHCost(compare->getGVal() + 1, dif);
-			successor.push_back(mapData[cY + 1][cX]);
+			mapData[compareY + 1][compareX]->setGHCost(compare->getGVal() + 1, dif);
+			successor.push_back(mapData[compareY + 1][compareX]);
 		}
 		if (compare->getEdge(Node::WEST)) {
-			dif = ((dest.x - (cX - 1)) ^ 2) + ((dest.y - cY) ^ 2);
+			dif = ((dest.x - (compareX - 1)) ^ 2) + ((dest.y - compareY) ^ 2);
 			if (dif < 0) {
 				dif *= -1;
 			}
-			mapData[cY][cX - 1]->setGHCost(compare->getGVal() + 1, dif);
-			successor.push_back(mapData[cY][cX - 1]);
+			mapData[compareY][compareX - 1]->setGHCost(compare->getGVal() + 1, dif);
+			successor.push_back(mapData[compareY][compareX - 1]);
 		}
 		if (compare->getEdge(Node::EAST)) {
-			dif = ((dest.x - (cX + 1)) ^ 2) + ((dest.y - cY) ^ 2);
+			dif = ((dest.x - (compareX + 1)) ^ 2) + ((dest.y - compareY) ^ 2);
 			if (dif < 0) {
 				dif *= -1;
 			}
-			mapData[cY][cX + 1]->setGHCost(compare->getGVal() + 1, dif);
-			successor.push_back(mapData[cY][cX + 1]);
+			mapData[compareY][compareX + 1]->setGHCost(compare->getGVal() + 1, dif);
+			successor.push_back(mapData[compareY][compareX + 1]);
 		}
 		
 		//check successors
 		while (!successor.empty()) {
 			bool closeContained = false;
 			bool openContained = false;
-			for (std::shared_ptr<Node> c : close) {
+			for (std::shared_ptr<Node> closeCheck : close) {
 				//if in close list do nothing
-				if (c->getID() == successor.back()->getID()) {
+				if (closeCheck->getID() == successor.back()->getID()) {
 					closeContained = true;
 					break;
 				}
 			}
 
 			if (!closeContained) {
-				for (std::shared_ptr<Node> o : open) {
+				for (std::shared_ptr<Node> openCheck : open) {
 					//if not in close but in open
-					if (o->getID() == successor.back()->getID()) {
+					if (openCheck->getID() == successor.back()->getID()) {
 						openContained = true;
 						//if entry in open is part of a longer path
-						if (o->getGVal() > successor.back()->getGVal()) {
+						if (openCheck->getGVal() > successor.back()->getGVal()) {
 							successor.back()->addParent(compare);
-							o = successor.back();
+							openCheck = successor.back();
 						}
 						break;
 					}
@@ -119,8 +119,15 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	//backtrack from end to start to get the path
 	bckNode = compare;
 	while (bckNode->getID() != origin.getID()) {
-		path.insert(path.begin(), Point2{ bckNode->getX(), bckNode->getY() });
+		pathFlipped.push_back(Point2{ bckNode->getX(), bckNode->getY() });
 		bckNode = bckNode->backtrack();
+		if (!bckNode) {
+			break;
+		}
+	}
+	while (!pathFlipped.empty()) {
+		path.push_back(pathFlipped.back());
+		pathFlipped.pop_back();
 	}
 	close.clear();
 
