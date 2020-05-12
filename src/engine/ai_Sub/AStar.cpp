@@ -1,6 +1,6 @@
 #include "AStar.h"
 
-AStar::AStar() : origin(0,0,0,0), goal(0,0,0,0) {
+AStar::AStar() : origin(0, 0, 0, 0), goal(0, 0, 0, 0) {
 
 }
 

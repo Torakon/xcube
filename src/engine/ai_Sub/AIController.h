@@ -46,7 +46,7 @@ class AIController {
 		 * @param seeker	The Entity that desires a path
 		 * @param dest		The destination tile location
 		 */
-		void givePath(Entity*, Point2);
+		void givePath(Entity* seeker, Point2 dest);
 
 		/**
 		 * Generate a path from one point to another and return if one exists or not

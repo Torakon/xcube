@@ -10,7 +10,7 @@ AIController::~AIController() {
 
 void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::shared_ptr<Rect>> map) {
 	// If tile cannot fit neatly into map size
-	if ((xPixel%tile != 0) || (yPixel%tile != 0)) {
+	if (((xPixel % tile) != 0) || ((yPixel % tile) != 0)) {
 		try {
 			throw 1;
 		}
@@ -73,11 +73,11 @@ void AIController::addMap(int tile, int xPixel, int yPixel, std::vector<std::sha
 }
 
 void AIController::givePath(Entity* seeker, Entity* dest) {
-	int sight = seeker->getSight(); /**< The sight radius of seeker Entity */
-	int seekerX = seeker->getX() / tileSize; /**< Tile location X of seeker Entity */
-	int seekerY = seeker->getY() / tileSize; /**< Tile location Y of seeker Entity */
-	int destX = dest->getX() / tileSize;	/**< Tile location X of destination Entity */
-	int destY = dest->getY() / tileSize;	/**< Tile location Y of destination Entity */
+	int sight = seeker->getSight();				/**< The sight radius of seeker Entity */
+	int seekerX = seeker->getX() / tileSize;	/**< Tile location X of seeker Entity */
+	int seekerY = seeker->getY() / tileSize;	/**< Tile location Y of seeker Entity */
+	int destX = dest->getX() / tileSize;		/**< Tile location X of destination Entity */
+	int destY = dest->getY() / tileSize;		/**< Tile location Y of destination Entity */
 
 	path.clear();
 	// If second entity is in range
