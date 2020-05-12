@@ -102,14 +102,17 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			break;
 		}
 	}
+
 	while (!pathFlipped.empty()) {
 		path.push_back(pathFlipped.back());
 		pathFlipped.pop_back();
 	}
+
 	close.clear();
 
 	return path;
 }
+
 void AStar::calcHue(std::vector<std::vector<std::shared_ptr<Node> >> mapData, int x, int y) {
 	newH = ((goal.getX() - (x)) ^ 2) + ((goal.getY() - y) ^ 2); // Calculate newH
 	if (newH < 0) {
