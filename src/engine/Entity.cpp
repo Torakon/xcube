@@ -120,6 +120,7 @@ void Entity::moveAlongPath() {
 }
 
 void Entity::aiMovePath(std::vector<Point2> path) {
+	pathCheck.clear();
 	pathCheck = path;
 }
 
