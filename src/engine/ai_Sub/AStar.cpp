@@ -35,41 +35,19 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 		}
 		close.push_back(compare);
 		open.erase(std::find(open.begin(), open.end() - 1, compare));
-		int compareY = compare->getY(); /**< Tile X location of current node */
-		int compareX = compare->getX();	/**< Tile Y location of current node */
 
 		// Get successors if walkable, in the four directions
 		if (compare->getEdge(Node::NORTH)) {
-			newH = ((dest.x - compareX) ^ 2) + ((dest.y - (compareY - 1)) ^ 2); // Calculate newH
-			if (newH < 0) {
-				newH *= -1; // Absolute value required
-			}
-			mapData[compareY - 1][compareX]->setGHCost(compare->getGVal() + 1, newH);
-			successor.push_back(mapData[compareY - 1][compareX]);
+			calcHue(mapData, compare->getX(), compare->getY() - 1);
 		}
 		if (compare->getEdge(Node::SOUTH)) {
-			newH = ((dest.x - compareX) ^ 2) + ((dest.y - (compareY + 1)) ^ 2);
-			if (newH < 0) {
-				newH *= -1;
-			}
-			mapData[compareY + 1][compareX]->setGHCost(compare->getGVal() + 1, newH);
-			successor.push_back(mapData[compareY + 1][compareX]);
+			calcHue(mapData, compare->getX(), compare->getY() + 1);
 		}
 		if (compare->getEdge(Node::WEST)) {
-			newH = ((dest.x - (compareX - 1)) ^ 2) + ((dest.y - compareY) ^ 2);
-			if (newH < 0) {
-				newH *= -1;
-			}
-			mapData[compareY][compareX - 1]->setGHCost(compare->getGVal() + 1, newH);
-			successor.push_back(mapData[compareY][compareX - 1]);
+			calcHue(mapData, compare->getX() - 1, compare->getY());
 		}
 		if (compare->getEdge(Node::EAST)) {
-			newH = ((dest.x - (compareX + 1)) ^ 2) + ((dest.y - compareY) ^ 2);
-			if (newH < 0) {
-				newH *= -1;
-			}
-			mapData[compareY][compareX + 1]->setGHCost(compare->getGVal() + 1, newH);
-			successor.push_back(mapData[compareY][compareX + 1]);
+			calcHue(mapData, compare->getX() + 1, compare->getY());
 		}
 		
 		// Check successors
@@ -131,4 +109,12 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 	close.clear();
 
 	return path;
+}
+void AStar::calcHue(std::vector<std::vector<std::shared_ptr<Node> >> mapData, int x, int y) {
+	newH = ((goal.getX() - (x)) ^ 2) + ((goal.getY() - y) ^ 2); // Calculate newH
+	if (newH < 0) {
+		newH *= -1; // Absolute value required
+	}
+	mapData[y][x]->setGHCost(compare->getGVal() + 1, newH);
+	successor.push_back(mapData[y][x]);
 }

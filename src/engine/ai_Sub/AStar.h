@@ -23,6 +23,15 @@ private:
 
 	int newH;						/**< Heuristic, commonly known as H, estimation of distance from 'here' to goal */
 	bool depthConstraint = false;	/**< Whether or not there is a limit to the amount of steps available */
+
+	/**
+	 * Internal function that calculates and sets an edge node's new hueristic
+	 * @param mapData	The current map representation, used to set the newH
+	 * @param x			The X coordinate of the Node being recalculated
+	 * @param y			The Y coordinate of the Node being recalculated
+	 */
+	void calcHue(std::vector<std::vector<std::shared_ptr<Node> >> mapData, int x, int y);
+
 public:
 	AStar();
 
