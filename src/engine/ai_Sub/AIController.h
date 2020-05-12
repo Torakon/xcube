@@ -8,6 +8,7 @@
 #include "AStar.h"
 #include <vector>
 #include <list>
+#include <memory>
 
 class AIController {
 	private:

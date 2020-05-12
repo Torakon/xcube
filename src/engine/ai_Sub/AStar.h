@@ -4,6 +4,7 @@
 #include "../Entity.h"
 #include "Node.h"
 #include <vector>
+#include <memory>
 
 class AStar {
 private:
