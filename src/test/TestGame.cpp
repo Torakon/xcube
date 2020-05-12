@@ -53,12 +53,17 @@ void TestGame::handleKeyEvents() {
 		velocity.x = speed;
 	}
 
+	// Handle pause button P
 	if (eventSystem->isPressed(Key::P)) {
 		if (state == PLAY) {
 			state = PAUSE;
 		}
+		else if (state == PAUSE) {
+			state = PLAY;
+		}
 	}
 
+	// Handle the different uses of ENTER
 	if (eventSystem->isPressed(Key::ENTER) && !resetBreak) {
 		resetBreak = true;
 		if (state == LOSE) {
@@ -75,8 +80,8 @@ void TestGame::handleKeyEvents() {
 					score -= scoreInc * 150;
 				}
 			}
-			state = PLAY;
 		}
+		state = PLAY;
 	}
 
 	// Allow enter to be 'registered' as pressed again
@@ -90,18 +95,14 @@ void TestGame::update() {
 		if (state == MENU) {
 			handleMenu();
 		}
-	} else {
+	} 
+	else {
+		// Movement and collisison detection for Player
 		player->moveX(velocity.x);
 
 		for (auto block : wall) {
 			if (player->getCollider().intersects(*block) || player->getCollider().intersects(npc->getCollider())) {
 				player->moveX(-velocity.x);
-				break;
-			}
-		}
-		for (auto block : wall) {
-			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
-				npc->moveX(-npcVel.x);
 				break;
 			}
 		}
@@ -111,12 +112,6 @@ void TestGame::update() {
 		for (auto block : wall) {
 			if (player->getCollider().intersects(*block) || player->getCollider().intersects(npc->getCollider())) {
 				player->moveY(-velocity.y);
-				break;
-			}
-		}
-		for (auto block : wall) {
-			if (npc->getCollider().intersects(*block) || npc->getCollider().intersects(player->getCollider())) {
-				npc->moveY(-npcVel.y);
 				break;
 			}
 		}
@@ -130,6 +125,7 @@ void TestGame::update() {
 			}
 		}
 
+		// Movement and collision (with Player) detection for NPCs
 		velocity = Vector2i(0, 0);
 		for (Entity* x : npcCollection) {
 			if ((x->getPathProgress() < 0.5) && (!x->getCollider().intersects(player->getCollider()))) {
@@ -153,6 +149,7 @@ void TestGame::update() {
 			state = WIN;
 		}
 	}
+	// Reset AI on reset condition
 	if (state == LIFELOSS || state == LOSE || state == WIN) {
 		for (Entity* x : npcCollection) {
 			x->clearPath();
@@ -198,15 +195,17 @@ void TestGame::renderUI() {
 	std::string scoreStr = std::to_string(score);
 	std::string livesStr = std::to_string(lives);
 
+	// Handles the different game states UI
 	switch (state) {
 	case WIN :
 		gfx->drawText("YOU FINISHED", 0, (height / 2) - 70);
+		gfx->drawText("Press Enter to PROCEED", 0, (height / 2));
 		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
 		break;
 	case LOSE : 
 		gfx->drawText("YOU LOSE", 0, (height / 2) - 70);
-		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
 		gfx->drawText("Press Enter to RESTART", 0, height / 2);
+		gfx->drawText("Your Score: " + scoreStr, 0, (height / 2) + 70);
 		lives = 3;
 		break;
 	case LIFELOSS:
@@ -219,7 +218,7 @@ void TestGame::renderUI() {
 		gfx->setDrawColor(SDL_COLOR_WHITE);
 		gfx->drawText("Are You Ready?", width * 0.25, height * 0.25);
 		gfx->useFont(fontSmall);
-		gfx->drawText("Press Enter to RESUME", 0, height / 2);
+		gfx->drawText("Press Enter to RESUME", width * 0.15, height / 2);
 		break;
 	case PLAY :
 		gfx->setDrawColor(SDL_COLOR_AQUA);
@@ -338,7 +337,7 @@ void TestGame::generateLevel() {
 		}
 	}
 	ai->addMap(tileSize, width, height, wall);
-	//world bounds
+	// World bounds
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, width + tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, -tileSize, tileSize, height + tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width + tileSize, tileSize)));
