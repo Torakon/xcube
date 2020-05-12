@@ -33,6 +33,7 @@ class TestGame : public AbstractGame {
 		Mix_Chunk * coin;				/**< Sound file to play as pickup coin */
 		Mix_Chunk * coin2;				/**< Alternate sound file to play as pickup coin */
 		Mix_Chunk * aiCollide;			/**< Sound File to play on npc collision with player */
+		Mix_Chunk * backing;			/**< Sound file to loop in background */
 		
 		int width;					/**< Map width in pixels */
 		int height;					/**< map height in pixels */

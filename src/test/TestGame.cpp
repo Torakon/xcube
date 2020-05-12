@@ -14,9 +14,13 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), width(510),
 
 	aiCollide = ResourceManager::loadSound("res/sound/sndFailure.wav");
 	coin = ResourceManager::loadSound("res/sound/sndCoin.wav");
-	coin2 = ResourceManager::loadSound("res/sound/sndCoin2.mp3");
-	coin->volume = 10;
-	coin2->volume = 25;
+	coin2 = ResourceManager::loadSound("res/sound/sndCoin2.wav");
+	backing = ResourceManager::loadSound("res/sound/sndTheme.mp3");
+	coin->volume = 20;
+	coin2->volume = 20;
+	backing->volume = 20;
+
+	Mix_PlayChannel(-1, backing, -1);
 
 	btnPlay = Rect(width * 0.25, height * 0.5, 100, 50);
 	btnDiff = Rect(width * 0.5, height * 0.5, 150, 50);
