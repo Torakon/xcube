@@ -222,7 +222,8 @@ void TestGame::renderUI() {
 		break;
 	case PLAY :
 		gfx->setDrawColor(SDL_COLOR_AQUA);
-		gfx->drawText(scoreStr, 780 - scoreStr.length() * 50, 25);
+		gfx->drawText("Score: " + scoreStr, width + 50, 25);
+		gfx->drawText("Lives: " + livesStr, width + 50, 100);
 		break;
 	case MENU :
 		gfx->setDrawColor(SDL_COLOR_BLACK);
