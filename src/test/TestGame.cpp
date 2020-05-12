@@ -14,7 +14,9 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), width(510),
 
 	aiCollide = ResourceManager::loadSound("res/sound/sndFailure.wav");
 	coin = ResourceManager::loadSound("res/sound/sndCoin.wav");
+	coin2 = ResourceManager::loadSound("res/sound/sndCoin2.mp3");
 	coin->volume = 10;
+	coin2->volume = 25;
 
 	btnPlay = Rect(width * 0.25, height * 0.5, 100, 50);
 	btnDiff = Rect(width * 0.5, height * 0.5, 150, 50);
@@ -32,6 +34,7 @@ TestGame::~TestGame() {
 	delete player;
 
 	npcCollection.clear();
+	delete bg;
 }
 
 void TestGame::handleKeyEvents() {
@@ -118,7 +121,12 @@ void TestGame::update() {
 
 		for (auto key : points) {
 			if (key->alive && player->getCollider().contains(key->pos)) {
-				Mix_PlayChannel(-1, coin, 0);
+				if (keys % 2 == 1) {
+					Mix_PlayChannel(-1, coin, 0);
+				}
+				else {
+					Mix_PlayChannel(-1, coin2, 0);
+				}
 				score += scoreInc * 200;
 				key->alive = false;
 				keys--;
@@ -179,7 +187,7 @@ void TestGame::render() {
 
 	for (auto key : points)
 		if (key->alive) {
-			SDL_Rect * coinRect = new SDL_Rect{ key->pos.x - 4, key->pos.y - 4, 9, 9 };
+			coinRect = new SDL_Rect{ key->pos.x - 4, key->pos.y - 4, 9, 9 };
 			gfx->drawTexture(imgCoin, NULL, coinRect);
 			gfx->drawPoint(key->pos);
 			delete coinRect;

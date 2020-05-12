@@ -12,10 +12,11 @@ struct GameKey {
 
 class TestGame : public AbstractGame {
 	private:
-		TTF_Font * amaticFont; /**< Primary Font for TestGame */
-		TTF_Font * fontSmall; /**< Secondary Font for TestGame, buttons */
+		TTF_Font * amaticFont;	/**< Primary Font for TestGame */
+		TTF_Font * fontSmall;	/**< Secondary Font for TestGame, buttons */
 
-		SDL_Rect * bg; /**< Display area for Background image*/
+		SDL_Rect * bg;			/**< Display area for Background image*/
+		SDL_Rect * coinRect;	/**< Display area for coin Texture */
 
 		Entity * player;
 		std::vector<Entity *> npcCollection; /**< Data collection storing pointers to currently spawned NPC Entities */
@@ -30,6 +31,7 @@ class TestGame : public AbstractGame {
 		SDL_Texture * imgBacking;		/**< Texture for use as background */
 		SDL_Texture * imgCoin;			/**< Texture for use as pickup coin */
 		Mix_Chunk * coin;				/**< Sound file to play as pickup coin */
+		Mix_Chunk * coin2;				/**< Alternate sound file to play as pickup coin */
 		Mix_Chunk * aiCollide;			/**< Sound File to play on npc collision with player */
 		
 		int width;					/**< Map width in pixels */
