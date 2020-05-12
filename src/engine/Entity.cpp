@@ -4,7 +4,7 @@ Entity::Entity(int xPos, int yPos, int height, int width, bool bounding, SDL_Tex
 	texture = inputTexture; 
 	display = new SDL_Rect{ x, y, h, w }; 
 	initX = x;
-	initY = x;
+	initY = y;
 
 	if (bounding) {
 		collider = Rect(x, y, h, w);
