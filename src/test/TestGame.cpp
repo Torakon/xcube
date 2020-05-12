@@ -65,9 +65,6 @@ void TestGame::handleKeyEvents() {
 		if (state == PLAY) {
 			state = PAUSE;
 		}
-		else if (state == PAUSE) {
-			state = PLAY;
-		}
 	}
 
 	// Handle the different uses of ENTER
@@ -184,7 +181,7 @@ void TestGame::render() {
 
 	for (auto block : wall) {
 		gfx->drawRect(block->x, block->y, block->w, block->h);
-		SDL_Rect * draw = new SDL_Rect{ block->x, block->y, block->w, block->h };
+		SDL_Rect * draw = new SDL_Rect{ block->x, block->y, block->w, block->h }; /**< Display area for one wall */
 		gfx->drawTexture(imgWall, NULL, draw);
 		delete draw;
 	}
@@ -229,7 +226,6 @@ void TestGame::renderUI() {
 		gfx->fillRect(0, 0, width + tileSize, height + tileSize);
 		gfx->setDrawColor(SDL_COLOR_WHITE);
 		gfx->drawText("Are You Ready?", width * 0.25, height * 0.25);
-		gfx->useFont(fontSmall);
 		gfx->drawText("Press Enter to RESUME", width * 0.15, height / 2);
 		break;
 	case PLAY :
