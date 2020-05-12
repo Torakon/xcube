@@ -1,15 +1,16 @@
 #include "TestGame.h"
 
-TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(false), width(510), height(510), tileSize(15) {
+TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), width(510), height(510), tileSize(15) {
 	amaticFont = ResourceManager::loadFont("res/fonts/AmaticSC-Regular.ttf", 72);
 	fontSmall = ResourceManager::loadFont("res/fonts/arial.ttf", 32);
 
 	bg = new SDL_Rect{ 0,0,width,height };
 
-	entityTexture = ResourceManager::loadTexture("res/texture/test.png", { 0, 0, 0xFF });
-	imgWall = ResourceManager::loadTexture("res/texture/imgWall15.png", { 0,0,0xFF }); //self created
-	imgBacking = ResourceManager::loadTexture("res/texture/imgBackground510.png", { 0,0,0xFF }); //self created
-	imgCoin = ResourceManager::loadTexture("res/texture/imgCoin01.png", { 0,0,0xFF }); //self created
+	entityTexture = ResourceManager::loadTexture("res/texture/imgPlayer.png", { 0, 0, 0xFF }); // Self created
+	npcTexture = ResourceManager::loadTexture("res/texture/imgNPC.png", { 0, 0, 0xFF }); // Self created
+	imgWall = ResourceManager::loadTexture("res/texture/imgWall15.png", { 0, 0, 0xFF }); // Self created
+	imgBacking = ResourceManager::loadTexture("res/texture/imgBackground510.png", { 0, 0, 0xFF }); // Self created
+	imgCoin = ResourceManager::loadTexture("res/texture/imgCoin01.png", { 0, 0, 0xFF }); // Self created
 
 	aiCollide = ResourceManager::loadSound("res/sound/sndFailure.wav");
 	coin = ResourceManager::loadSound("res/sound/sndCoin.wav");
@@ -24,7 +25,6 @@ TestGame::TestGame() : AbstractGame(), score(0), lives(3), keys(10), gameWon(fal
 	player = new Entity(1, 1, tileSize - 1, tileSize - 1, true, entityTexture);
 
 	generateLevel();
-	ai->DEBUG_ShowMap();
 }
 
 TestGame::~TestGame() {
@@ -64,9 +64,8 @@ void TestGame::handleKeyEvents() {
 		if (state == LOSE) {
 			score = 0;
 		}
-		if (state == LOSE || state == LIFELOSS || WIN) {
+		if (state == LOSE || state == LIFELOSS || state == WIN) {
 			player->setXY(Point2{ 0, 0 });
-			state = PLAY;
 			if (state == WIN) {
 				wall.clear();
 				generateLevel();
@@ -76,6 +75,7 @@ void TestGame::handleKeyEvents() {
 					score -= scoreInc * 150;
 				}
 			}
+			state = PLAY;
 		}
 	}
 
@@ -271,12 +271,12 @@ void TestGame::handleMenu() {
 		if (eventSystem->isPressed(BTN_LEFT) && btnBreak) {
 			state = PLAY;
 			btnBreak = false;
-			//NPC generation
+			// NPC generation
 			for (int i = 0; i < npcCount; i++) {
 				int xCord = getRandom(0, width / tileSize);
 				int yCord = getRandom(0, height / tileSize);
 				if (ai->checkPossible(Point2{ xCord, yCord }, Point2{ xCord, yCord })) {
-					npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, entityTexture);
+					npc = new Entity(xCord * tileSize, yCord * tileSize, tileSize - 1, tileSize - 1, true, npcTexture);
 					if (npcCount == 7) {
 						npc->setSight(25);
 					}
@@ -327,11 +327,12 @@ void TestGame::handleMenu() {
 void TestGame::generateLevel() {
 	keys = 10;
 	points.clear();
+	// Generate the walls and push back on wall vector
 	gen = new MazeGenerator(width / tileSize, height / tileSize);
 	gen->generateMaze(0, 0);
 	for (int i = 0; i < height / tileSize; i++) {
-		for (int j = 0; j < width / tileSize; j++) { //set walls as entity type? allow assigning different texture.
-			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { //at the very least look into making the aesthetic more dynamic
+		for (int j = 0; j < width / tileSize; j++) {
+			if ((getRandom(0, 3) == 1) && (i != 0) && (j != 0)) { 
 				wall.push_back(std::make_shared<Rect>(Rect(i*tileSize, j*tileSize, tileSize, tileSize)));
 			}
 		}
@@ -343,6 +344,7 @@ void TestGame::generateLevel() {
 	wall.push_back(std::make_shared<Rect>(Rect(-tileSize, height, width + tileSize, tileSize)));
 	wall.push_back(std::make_shared<Rect>(Rect(width, -tileSize, tileSize, height + tileSize)));
 
+	// Generate the coins and push back on points vector
 	for (int i = 0; i < keys; i++) {
 		int xCord = getRandom(0, (width / tileSize));
 		int yCord = getRandom(0, (height / tileSize));
