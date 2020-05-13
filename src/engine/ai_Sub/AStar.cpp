@@ -67,7 +67,6 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 					// If not in close but in open
 					if (openCheck->getID() == successor.back().getID()) {
 						openContained = true;
-						std::cout << openCheck->getGVal() << " " << successor.back().getGVal() << std::endl;
 						// If entry in open is part of a longer path
 						if (openCheck->getGVal() > successor.back().getGVal()) {
 							successor.back().addParent(compare);
