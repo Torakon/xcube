@@ -17,9 +17,9 @@ private:
 	Node origin;	/**< Node at start of search */
 	Node goal;		/**< Desired Node at end of search */
 
-	std::vector<Node> successor;	/**< Data collection storing the Node on each edge of the current Node */
-	std::vector<Point2> path;						/**< True path followable by current Entity code */
-	std::vector<Point2> pathFlipped;				/**< Initial path calculated by back tracking */
+	std::vector<Node> successor;		/**< Data collection storing the Node on each edge of the current Node */
+	std::vector<Point2> path;			/**< True path followable by current Entity code */
+	std::vector<Point2> pathFlipped;	/**< Initial path calculated by back tracking */
 
 	int newH;						/**< Heuristic, commonly known as H, estimation of distance from 'here' to goal */
 	bool depthConstraint = false;	/**< Whether or not there is a limit to the amount of steps available */
