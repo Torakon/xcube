@@ -56,7 +56,7 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			bool openContained = false;		/**< Flag if Node in open vector */
 			for (std::shared_ptr<Node> closeCheck : close) {
 				// If in close list do nothing
-				if (closeCheck->getID() == successor.back()->getID()) {
+				if (closeCheck->getID() == successor.back().getID()) {
 					closeContained = true;
 					break;
 				}
@@ -65,20 +65,21 @@ std::vector<Point2> AStar::AStarSearch(Point2 start, Point2 dest, std::vector<st
 			if (!closeContained) {
 				for (std::shared_ptr<Node> openCheck : open) {
 					// If not in close but in open
-					if (openCheck->getID() == successor.back()->getID()) {
+					if (openCheck->getID() == successor.back().getID()) {
 						openContained = true;
+						std::cout << openCheck->getGVal() << " " << successor.back().getGVal() << std::endl;
 						// If entry in open is part of a longer path
-						if (openCheck->getGVal() > successor.back()->getGVal()) {
-							successor.back()->addParent(compare);
-							openCheck = successor.back();
+						if (openCheck->getGVal() > successor.back().getGVal()) {
+							successor.back().addParent(compare);
+							openCheck = std::make_shared<Node>(successor.back());
 						}
 						break;
 					}
 				}
 				// If in neither
 				if (!openContained) {
-					successor.back()->addParent(compare);
-					open.push_back(successor.back());
+					successor.back().addParent(compare);
+					open.push_back(std::make_shared<Node> (successor.back()));
 				}
 			}
 			successor.pop_back();
@@ -119,5 +120,5 @@ void AStar::calcHue(std::vector<std::vector<std::shared_ptr<Node> >> mapData, in
 		newH *= -1; // Absolute value required
 	}
 	mapData[y][x]->setGHCost(compare->getGVal() + 1, newH);
-	successor.push_back(mapData[y][x]);
+	successor.push_back(*mapData[y][x]);
 }

@@ -17,7 +17,7 @@ private:
 	Node origin;	/**< Node at start of search */
 	Node goal;		/**< Desired Node at end of search */
 
-	std::vector<std::shared_ptr<Node >> successor;	/**< Data collection storing the Node on each edge of the current Node */
+	std::vector<Node> successor;	/**< Data collection storing the Node on each edge of the current Node */
 	std::vector<Point2> path;						/**< True path followable by current Entity code */
 	std::vector<Point2> pathFlipped;				/**< Initial path calculated by back tracking */
 
