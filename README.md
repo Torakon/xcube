@@ -1,5 +1,7 @@
 Provided was a basic Game Engine that we were given the option to develop a chosen subsystem. My chosen area to develop was AI pathfinding, to facilitate this additional files in folder ai_Sub implementing an A* pathfinding algorithm were created. Additionally a very basic Entity system was created.
 
+Below is the original README included with the assignment.
+
 xcube2d
 =======
 
